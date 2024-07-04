@@ -27,6 +27,7 @@
         <module>account-service</module>
         <module>auth-service</module>
         <module>registry</module>
+        <module>statistics-service</module>
     </modules>
 
 </project>

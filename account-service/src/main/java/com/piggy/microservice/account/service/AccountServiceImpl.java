@@ -1,6 +1,7 @@
 package com.piggy.microservice.account.service;
 
 import com.piggy.microservice.account.clients.AuthServiceClient;
+import com.piggy.microservice.account.clients.StatisticsServiceClient;
 import com.piggy.microservice.account.domain.Account;
 import com.piggy.microservice.account.domain.Currency;
 import com.piggy.microservice.account.domain.Saving;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Service
@@ -22,11 +24,13 @@ public class AccountServiceImpl implements AccountService{
 
     private final AccountRepository accountRepository;
     private final AuthServiceClient authServiceClient;
+    private final StatisticsServiceClient statisticsServiceClient;
 
     @Autowired
-    public AccountServiceImpl(AccountRepository accountRepository, AuthServiceClient authServiceClient) {
+    public AccountServiceImpl(AccountRepository accountRepository, AuthServiceClient authServiceClient, StatisticsServiceClient statisticsServiceClient) {
         this.accountRepository = accountRepository;
         this.authServiceClient = authServiceClient;
+        this.statisticsServiceClient = statisticsServiceClient;
     }
 
 
@@ -68,11 +72,15 @@ public class AccountServiceImpl implements AccountService{
         Account account = accountRepository.findByName(name);
         Assert.notNull(account, "can't find account with name " + name);
 
+        account.setName(name);
         account.setIncomes(update.getIncomes());
         account.setExpenses(update.getExpenses());
         account.setSaving(update.getSaving());
         account.setNote(update.getNote());
         account.setLastSeen(new Date());
         accountRepository.save(account);
+        log.info("save changes has been saved: " + account.getName());
+
+        statisticsServiceClient.updateStatistics(name, update);
     }
 }

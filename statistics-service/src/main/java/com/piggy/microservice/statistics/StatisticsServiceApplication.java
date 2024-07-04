@@ -1,16 +1,17 @@
-package com.piggy.microservice.registry;
+package com.piggy.microservice.statistics;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
-@EnableEurekaServer
-public class ConfigApplication {
+@EnableDiscoveryClient
+@EnableFeignClients
+public class StatisticsServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ConfigApplication.class, args);
+        SpringApplication.run(StatisticsServiceApplication.class, args);
     }
 
 }

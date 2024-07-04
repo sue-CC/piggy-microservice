@@ -11,8 +11,8 @@
     <groupId>com.piggy.microservice.config</groupId>
     <artifactId>registry</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>config</name>
-    <description>config</description>
+    <name>registry</name>
+    <description>registry</description>
     <url/>
     <licenses>
         <license/>
