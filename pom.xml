@@ -28,6 +28,7 @@
         <module>auth-service</module>
         <module>registry</module>
         <module>statistics-service</module>
+        <module>notification-service</module>
     </modules>
 
 </project>
