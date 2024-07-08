@@ -31,7 +31,6 @@ public class accountGrpcClientImpl implements AccountClient {
         this.channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext().build();
         this.accountService = AccountServiceGrpc.newBlockingStub(channel);
-//        .withCallCredentials(callCredentials);
     }
 
     @PreDestroy
