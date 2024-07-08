@@ -54,9 +54,5 @@ public class AccountController {
         return accountService.create(user);
     }
 
-    @RequestMapping(path = "/ping", method = RequestMethod.GET)
-    public String test() {
-        return "pong";
-    }
 }
 
