@@ -1,23 +1,26 @@
-package com.piggy.microservice.notification.grpc.server;
+package com.piggy.microservice.statistics.grpc.server;
 
-import com.piggy.microservice.notification.service.RecipientServiceImpl;
+import com.piggy.microservice.statistics.service.StatisticsServiceImpl;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-@Component
-public class NotificationGrpcServerConfiguration {
-    private final Server server;
-    private final RecipientServiceImpl recipientServiceImpl;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
-    public NotificationGrpcServerConfiguration(@Value("${grpc.server.port:9092}")int port, RecipientServiceImpl recipientServiceImpl) {
+@Component
+public class StatisticsGrpcServerConfiguration {
+    private final Server server;
+    private final StatisticsServiceImpl statisticsService;
+
+
+    public StatisticsGrpcServerConfiguration(@Value("${grpc.server.port:9093}")int port, StatisticsServiceImpl statisticsService) {
+        this.statisticsService = statisticsService;
+        System.out.println("StatisticsService injected: " + (statisticsService != null));
         ServerBuilder<?> builder = ServerBuilder.forPort(port);
-        builder.addService(new NotificationGrpcServiceImpl(recipientServiceImpl));
+        builder.addService(new StatisticsGrpcServiceImpl(statisticsService));
         this.server = builder.build();
-        this.recipientServiceImpl = recipientServiceImpl;
     }
 
     @PostConstruct
@@ -25,7 +28,7 @@ public class NotificationGrpcServerConfiguration {
         try {
             System.out.println("Attempting to start gRPC server...");
             server.start();
-            System.out.println("Notification gRPC Server started, listening on " + server.getPort());
+            System.out.println("Statistics gRPC Server started, listening on " + server.getPort());
         } catch (Exception e) {
             System.err.println("Failed to start gRPC server: " + e.getMessage());
             throw new IllegalStateException("Not started", e);
