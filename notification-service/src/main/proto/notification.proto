@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package notification;
+
+option java_package = "com.piggy.microservice.account.grpc";
+option java_outer_classname = "NotificationProto";
+option java_multiple_files = false;
+
+import "google/protobuf/timestamp.proto";
+
+service NotificationService {
+  rpc GetRecipient(GetRecipientRequest) returns (RecipientResponse);
+  rpc UpdateRecipient(UpdateRecipientRequest) returns (RecipientResponse);
+}
+
+// Define the Frequency enum.
+enum Frequency {
+  LOW = 0;
+  MEDIUM = 1;
+  HIGH = 2;
+}
+
+// Define the NotificationType enum.
+enum NotificationType {
+  BACKUP = 0;
+  REMIND = 1;
+}
+
+// Define the NotificationSettings message.
+message NotificationSettings {
+  bool active = 1;
+  Frequency frequency = 2;
+  google.protobuf.Timestamp lastNotified = 3; // Use Timestamp for Date
+}
+
+// Define the NotificationEntry message to represent map entries.
+message NotificationEntry {
+  NotificationType type = 1;
+  NotificationSettings settings = 2;
+}
+
+// Define the Recipient message with a repeated field of NotificationEntry.
+message Recipient {
+  string accountName = 1;
+  string email = 2;
+  repeated NotificationEntry scheduledNotifications = 3; // Use repeated field for map entries
+}
+
+// Define the request and response messages.
+message GetRecipientRequest {
+  string name = 1;
+}
+
+message UpdateRecipientRequest {
+  string name = 1;
+  Recipient recipient = 2;
+}
+
+message RecipientResponse {
+  Recipient recipient = 1;
+}
+
+
+
+

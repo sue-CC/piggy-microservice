@@ -4,11 +4,9 @@ import com.google.protobuf.Empty;
 import com.piggy.microservice.auth.domain.User;
 import com.piggy.microservice.auth.grpc.UserProto;
 import com.piggy.microservice.auth.grpc.UserServiceGrpc;
-import com.piggy.microservice.auth.repository.UserRepository;
 import com.piggy.microservice.auth.service.UserService;
 import io.grpc.stub.StreamObserver;
-import com.google.protobuf.Empty;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
