@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option java_package = "com.piggy.microservice.notification.grpc";
+option java_outer_classname = "AccountProto";
+// Define the Account Service
+service AccountService {
+  rpc GetAccount(GetAccountRequest) returns (GetAccountResponse);
+}
+
+// Define the request message
+message GetAccountRequest {
+  string account_name = 1;
+}
+
+// Define the response message
+message GetAccountResponse {
+  string account_details = 1; // Adjust this field according to your actual response structure
+}

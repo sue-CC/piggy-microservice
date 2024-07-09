@@ -1,7 +1,6 @@
 package com.piggy.microservice.account.grpc.server;
 
 import com.piggy.microservice.account.domain.*;
-import com.piggy.microservice.account.domain.*;
 import com.piggy.microservice.account.grpc.AccountProto;
 import com.piggy.microservice.account.grpc.AccountServiceGrpc;
 import com.piggy.microservice.account.service.AccountService;
@@ -110,20 +109,13 @@ public class AccountGrpcServiceImpl extends AccountServiceGrpc.AccountServiceImp
     }
 
     private AccountProto.TimePeriod convertToGrpcPeriod(TimePeriod period) {
-        switch (period) {
-            case YEAR:
-                return AccountProto.TimePeriod.YEAR;
-            case QUARTER:
-                return AccountProto.TimePeriod.QUARTER;
-            case MONTH:
-                return AccountProto.TimePeriod.MONTH;
-            case DAY:
-                return AccountProto.TimePeriod.DAY;
-            case HOUR:
-                return AccountProto.TimePeriod.HOUR;
-            default:
-                throw new IllegalArgumentException("Unknown currency: " + period);
-        }
+        return switch (period) {
+            case YEAR -> AccountProto.TimePeriod.YEAR;
+            case QUARTER -> AccountProto.TimePeriod.QUARTER;
+            case MONTH -> AccountProto.TimePeriod.MONTH;
+            case DAY -> AccountProto.TimePeriod.DAY;
+            case HOUR -> AccountProto.TimePeriod.HOUR;
+        };
     }
 
     private AccountProto.Currency convertToGrpcCurrency(Currency currency) {

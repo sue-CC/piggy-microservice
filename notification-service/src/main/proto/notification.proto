@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package notification;
 
-option java_package = "com.piggy.microservice.account.grpc";
+option java_package = "com.piggy.microservice.notification.grpc";
 option java_outer_classname = "NotificationProto";
 option java_multiple_files = false;
 
