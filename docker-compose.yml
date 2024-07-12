@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   registry:
     image: clytze/piggy-registry
@@ -11,8 +12,11 @@ services:
         max-file: "10"
 
   auth-service:
-    image: clytze/piggy-auth
+    image: clytze/piggy-auth-grpc
     restart: always
+    depends_on:
+      - auth-mongodb
+      - registry
     logging:
       options:
         max-size: "10m"
@@ -27,8 +31,11 @@ services:
         max-file: "10"
 
   account-service:
-    image: clytze/piggy-account
+    image: clytze/piggy-account-grpc
     restart: always
+    depends_on:
+      - account-mongodb
+      - registry
     logging:
       options:
         max-size: "10m"
@@ -43,8 +50,11 @@ services:
         max-file: "10"
 
   statistics-service:
-    image: clytze/piggy-statistics
+    image: clytze/piggy-statistics-grpc
     restart: always
+    depends_on:
+      - statistics-mongodb
+      - registry
     logging:
       options:
         max-size: "10m"
@@ -59,8 +69,11 @@ services:
         max-file: "10"
 
   notification-service:
-    image: clytze/piggy-notification
+    image: clytze/piggy-notification-grpc
     restart: always
+    depends_on:
+      - notification-mongodb
+      - registry
     logging:
       options:
         max-size: "10m"
@@ -73,4 +86,3 @@ services:
       options:
         max-size: "10m"
         max-file: "10"
-

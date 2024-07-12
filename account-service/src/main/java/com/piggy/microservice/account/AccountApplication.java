@@ -14,18 +14,6 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableDiscoveryClient
 public class AccountApplication {
 
-    private final AccountRepository accountRepository;
-
-    @Autowired
-    public AccountApplication(AccountRepository accountRepository) {
-        this.accountRepository = accountRepository;
-    }
-
-    @PostConstruct
-    public void generateTestData() {
-        accountRepository.save(new Account());
-
-    }
 
     public static void main(String[] args) {
         SpringApplication.run(AccountApplication.class, args);

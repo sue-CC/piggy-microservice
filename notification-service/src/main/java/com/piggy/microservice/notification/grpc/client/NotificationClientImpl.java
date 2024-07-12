@@ -1,8 +1,8 @@
 package com.piggy.microservice.notification.grpc.client;
 
 import com.google.protobuf.Timestamp;
-import com.piggy.microservice.account.grpc.NotificationProto;
-import com.piggy.microservice.account.grpc.NotificationServiceGrpc;
+import com.piggy.microservice.notification.grpc.NotificationProto;
+import com.piggy.microservice.notification.grpc.NotificationServiceGrpc;
 import com.piggy.microservice.notification.domain.Frequency;
 import com.piggy.microservice.notification.domain.NotificationSettings;
 import com.piggy.microservice.notification.domain.NotificationType;
