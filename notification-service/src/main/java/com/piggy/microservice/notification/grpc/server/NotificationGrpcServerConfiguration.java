@@ -13,7 +13,7 @@ public class NotificationGrpcServerConfiguration {
     private final Server server;
     private final RecipientServiceImpl recipientServiceImpl;
 
-    public NotificationGrpcServerConfiguration(@Value("${grpc.server.port:9092}")int port, RecipientServiceImpl recipientServiceImpl) {
+    public NotificationGrpcServerConfiguration(@Value("${notification.server.port:9092}")int port, RecipientServiceImpl recipientServiceImpl) {
         ServerBuilder<?> builder = ServerBuilder.forPort(port);
         builder.addService(new NotificationGrpcServiceImpl(recipientServiceImpl));
         this.server = builder.build();

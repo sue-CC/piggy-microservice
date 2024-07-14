@@ -4,6 +4,7 @@ import com.piggy.microservice.account.domain.*;
 import com.piggy.microservice.account.grpc.AccountProto;
 import com.piggy.microservice.account.grpc.AccountServiceGrpc;
 import com.piggy.microservice.account.service.AccountService;
+import com.piggy.microservice.account.service.AccountServiceImpl;
 import io.grpc.stub.StreamObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,10 +16,10 @@ import java.util.stream.Collectors;
 @Service
 public class AccountGrpcServiceImpl extends AccountServiceGrpc.AccountServiceImplBase {
 
-    private final AccountService accountService;
+    private final AccountServiceImpl accountService;
 
     @Autowired
-    public AccountGrpcServiceImpl(AccountService accountService) {
+    public AccountGrpcServiceImpl(AccountServiceImpl accountService) {
         this.accountService = accountService;
     }
 
@@ -33,7 +34,7 @@ public class AccountGrpcServiceImpl extends AccountServiceGrpc.AccountServiceImp
     }
 
     @Override
-    public void saveCurrentAccount(AccountProto.SaveAccountRequest request, StreamObserver<AccountProto.GetAccountResponse> responseObserver) {
+    public void saveCurrentAccount(AccountProto.SaveAccountRequest request, StreamObserver<AccountProto.SuccessMessage> responseObserver) {
         String accountName = request.getAccountName();
         Account account = accountService.findByName(accountName);
 
@@ -52,14 +53,39 @@ public class AccountGrpcServiceImpl extends AccountServiceGrpc.AccountServiceImp
         accountService.saveChanges(accountName, account);
 
         // Create the response
-        AccountProto.GetAccountResponse response = AccountProto.GetAccountResponse.newBuilder()
-                .setAccount(convertToGrpcAccount(account))
+        AccountProto.SuccessMessage response = AccountProto.SuccessMessage.newBuilder()
+                .setSuccessMessage("Account updated successfully.")
                 .build();
 
         // Send the response
         responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
+//    @Override
+//    public void saveCurrentAccount(AccountProto.SaveAccountRequest request, StreamObserver<AccountProto.SuccessMessage> responseObserver) {
+//        Account account = accountService.findByName(request.getAccountName());
+//        // Update the account with the provided incomes, expenses, and saving
+//        account.setIncomes(request.getIncomesList().stream()
+//                .map(this::convertFromGrpcItem)
+//                .collect(Collectors.toList()));
+//        account.setExpenses(request.getExpensesList().stream()
+//                .map(this::convertFromGrpcItem)
+//                .collect(Collectors.toList()));
+//
+//        account.setSaving(convertFromGrpcSaving(request.getSaving()));
+//
+//        // Save the updated account
+////        accountService.saveChanges(request.getAccountName(), account);
+//
+//        // Create the response
+//        AccountProto.SuccessMessage response = AccountProto.SuccessMessage.newBuilder()
+//                .setSuccessMessage("Account updated successfully.")
+//                .build();
+//
+//        // Send the response
+//        responseObserver.onNext(response);
+//        responseObserver.onCompleted();
+//    }
 
     @Override
     public void createNewAccount(AccountProto.CreateAccountRequest request, StreamObserver<AccountProto.GetAccountResponse> responseObserver) {
@@ -76,7 +102,6 @@ public class AccountGrpcServiceImpl extends AccountServiceGrpc.AccountServiceImp
     private AccountProto.Account convertToGrpcAccount(Account account) {
         return AccountProto.Account.newBuilder()
                 .setName(account.getName())
-                .setLastSeen(account.getLastSeen().toString())
                 .addAllIncomes(account.getIncomes() != null ?
                         account.getIncomes().stream().map(this::convertToGrpcItem).collect(Collectors.toList()) :
                         Collections.emptyList())
@@ -137,7 +162,6 @@ public class AccountGrpcServiceImpl extends AccountServiceGrpc.AccountServiceImp
         item.setAmount(new BigDecimal(grpcItem.getAmount()));
         item.setCurrency(convertFromGrpcCurrency(grpcItem.getCurrency()));
         item.setPeriod(convertFromGrpcPeriod(grpcItem.getPeriod()));
-        item.setIcon(grpcItem.getIcon());
         return item;
     }
 

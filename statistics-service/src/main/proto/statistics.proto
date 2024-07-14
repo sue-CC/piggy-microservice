@@ -31,12 +31,6 @@ message Saving {
   bool capitalization = 5;
 }
 
-message Account {
-  repeated Item incomes = 1;
-  repeated Item expenses = 2;
-  Saving saving = 3;
-}
-
 enum Currency {
   USD = 0;
   EUR = 1;
@@ -80,9 +74,15 @@ message DataPoint {
   repeated CurrencyEntry rates = 5;
 }
 
+message Account {
+  repeated Item incomes = 1;
+  repeated Item expenses = 2;
+  Saving saving = 3;
+}
 message UpdateAccountRequest {
   string name = 1;
   Account account = 2;
+
 }
 
 message UpdateAccountResponse {

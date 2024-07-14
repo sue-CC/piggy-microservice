@@ -7,7 +7,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
 import java.util.List;
 
 @Document(collection = "accounts")
@@ -16,8 +15,6 @@ public class Account {
 
     @Id
     private String name;
-
-    private Date lastSeen;
 
     @Valid
     private List<Item> incomes;
@@ -40,13 +37,6 @@ public class Account {
         this.name = name;
     }
 
-    public Date getLastSeen() {
-        return lastSeen;
-    }
-
-    public void setLastSeen(Date lastSeen) {
-        this.lastSeen = lastSeen;
-    }
 
     public List<Item> getIncomes() {
         return incomes;

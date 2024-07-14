@@ -44,9 +44,9 @@ public class AccountController {
      * @return the updated account
      */
     @RequestMapping(value = "/{name}", method =  RequestMethod.PUT)
-    public ResponseEntity<Account> updateAccount(@PathVariable("name") String name, @RequestBody Account account) {
+    public ResponseEntity<String> updateAccount(@PathVariable("name") String name, @RequestBody Account account) {
         accountService.saveChanges(name, account);
-            return ResponseEntity.ok(account);
+            return ResponseEntity.ok("Account updated successfully.");
     }
 
     @RequestMapping(path = "/", method = RequestMethod.POST)

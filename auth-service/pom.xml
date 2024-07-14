@@ -61,7 +61,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
-            <version>2.3.4.RELEASE</version>
+            <version>3.3.1</version>
             <scope>compile</scope>
         </dependency>
 
@@ -206,6 +206,10 @@
                         </manifest>
                     </archive>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>

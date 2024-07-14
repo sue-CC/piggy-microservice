@@ -1,6 +1,7 @@
 package com.piggy.microservice.account.grpc.server;
 
-import com.piggy.microservice.account.repository.AccountRepository;
+import com.piggy.microservice.account.clients.AuthServiceClient;
+import com.piggy.microservice.account.clients.authClientImpl;
 import com.piggy.microservice.account.service.AccountServiceImpl;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -15,11 +16,14 @@ import javax.annotation.PreDestroy;
 public class AccountGrpcServerConfiguration {
     private final Server server;
     private final AccountServiceImpl accountService;
+    private final authClientImpl authServiceClient;
 
 
-    public AccountGrpcServerConfiguration(@Value("${grpc.server.port:9090}")int port, AccountServiceImpl accountService) {
+    public AccountGrpcServerConfiguration(@Value("${account.server.port:9090}")int port, AccountServiceImpl accountService, authClientImpl authServiceClient) {
         this.accountService = accountService;
+        this.authServiceClient = authServiceClient;
         System.out.println("AccountService injected: " + (accountService != null));
+        System.out.println("AuthClient injected: " + (authServiceClient != null));
         ServerBuilder<?> builder = ServerBuilder.forPort(port);
         builder.addService(new AccountGrpcServiceImpl(accountService));
         this.server = builder.build();

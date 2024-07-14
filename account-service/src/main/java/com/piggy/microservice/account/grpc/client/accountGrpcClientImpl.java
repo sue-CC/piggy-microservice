@@ -4,20 +4,16 @@ import com.piggy.microservice.account.domain.*;
 import com.piggy.microservice.account.grpc.AccountProto;
 import com.piggy.microservice.account.grpc.AccountServiceGrpc;
 import io.grpc.*;
-import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
 import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+//@EnableDiscoveryClient
 @Component
 public class accountGrpcClientImpl implements AccountClient {
 
@@ -26,8 +22,8 @@ public class accountGrpcClientImpl implements AccountClient {
     private final ManagedChannel channel;
 
     @Autowired
-    public accountGrpcClientImpl(@Value("${order.service.host:localhost}") String host,
-                                 @Value("${order.service.port:9090}") int port){
+    public accountGrpcClientImpl(@Value("${account.service.host:localhost}") String host,
+                                 @Value("${account.server.port:9090}") int port){
         this.channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext().build();
         this.accountService = AccountServiceGrpc.newBlockingStub(channel);
@@ -55,28 +51,20 @@ public class accountGrpcClientImpl implements AccountClient {
         }
     }
 
-    public Account saveCurrentAccount(String accountName, Account account) {
+    @Override
+    public String saveCurrentAccount(String accountName,
+                                     Account account) {
         AccountProto.SaveAccountRequest request = AccountProto.SaveAccountRequest.newBuilder()
                 .setAccountName(accountName)
-                .addAllIncomes(account.getIncomes().stream()
-                        .map(this::convertToGrpcItem)
-                        .collect(Collectors.toList()))
-                .addAllExpenses(account.getExpenses().stream()
-                        .map(this::convertToGrpcItem)
-                        .collect(Collectors.toList()))
+                .addAllIncomes(account.getIncomes().stream().map(this::convertToGrpcItem).collect(Collectors.toList()))
+                .addAllExpenses(account.getExpenses().stream().map(this::convertToGrpcItem).collect(Collectors.toList()))
                 .setSaving(convertToGrpcSaving(account.getSaving()))
                 .build();
-
-        AccountProto.GetAccountResponse response;
-        try {
-            response = accountService.saveCurrentAccount(request);
-        } catch (StatusRuntimeException e) {
-            // Handle gRPC exception
-            e.printStackTrace();
-            return null;
-        }
-        return mapToAccount(response);
+        System.out.println(request.getSaving());
+        AccountProto.SuccessMessage response = accountService.saveCurrentAccount(request);
+        return response.getSuccessMessage();
     }
+
     @Override
     public Account createNewAccount(User user) {
         AccountProto.CreateAccountRequest request = AccountProto.CreateAccountRequest.newBuilder()
@@ -98,7 +86,6 @@ public class accountGrpcClientImpl implements AccountClient {
 
         Account account = new Account();
         account.setName(grpcAccount.getName());
-        account.setLastSeen(convertToDate(grpcAccount.getLastSeen()));
         account.setIncomes(grpcAccount.getIncomesList().stream().map(this::mapToItem).collect(Collectors.toList()));
         account.setExpenses(grpcAccount.getExpensesList().stream().map(this::mapToItem).collect(Collectors.toList()));
         account.setSaving(mapToSaving(grpcAccount.getSaving()));
@@ -107,14 +94,6 @@ public class accountGrpcClientImpl implements AccountClient {
         return account;
     }
 
-    private Date convertToDate(String dateTime){
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        try {
-            return formatter.parse(dateTime);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     private Item mapToItem(AccountProto.Item grpcItem) {
         Item item = new Item();
@@ -171,7 +150,6 @@ public class accountGrpcClientImpl implements AccountClient {
     private AccountProto.Account convertToGrpcAccount(Account account) {
         return AccountProto.Account.newBuilder()
                 .setName(account.getName())
-                .setLastSeen(account.getLastSeen().toString())
                 .addAllIncomes(account.getIncomes().stream().map(this::convertToGrpcItem).collect(Collectors.toList()))
                 .addAllExpenses(account.getExpenses().stream().map(this::convertToGrpcItem).collect(Collectors.toList()))
                 .setSaving(convertToGrpcSaving(account.getSaving()))

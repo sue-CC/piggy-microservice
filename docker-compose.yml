@@ -5,15 +5,20 @@ services:
     image: clytze/piggy-registry
     restart: always
     ports:
-      - 8761:8761
+      - "8761:8761"
     logging:
       options:
         max-size: "10m"
         max-file: "10"
+    networks:
+      - eureka-network
 
   auth-service:
     image: clytze/piggy-auth-grpc
     restart: always
+    ports:
+      - "5000:5000"
+      - "9091:9091"
     depends_on:
       - auth-mongodb
       - registry
@@ -21,18 +26,31 @@ services:
       options:
         max-size: "10m"
         max-file: "10"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://registry:8761/eureka/
+      SPRING_DATA_MONGODB_URI: mongodb://auth-mongodb:27017/authdb
+    networks:
+      - eureka-network
 
   auth-mongodb:
     image: clytze/piggy-mongodb
     restart: always
+    ports:
+      - "27017:27017"
+    command: [ "mongod", "--bind_ip", "0.0.0.0" ]
     logging:
       options:
         max-size: "10m"
         max-file: "10"
+    networks:
+      - eureka-network
 
   account-service:
     image: clytze/piggy-account-grpc
     restart: always
+    ports:
+      - "6000:6000"
+      - "9090:9090"
     depends_on:
       - account-mongodb
       - registry
@@ -40,18 +58,31 @@ services:
       options:
         max-size: "10m"
         max-file: "10"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://registry:8761/eureka/
+      SPRING_DATA_MONGODB_URI: mongodb://account-mongodb:27017/accountdb
+    networks:
+      - eureka-network
 
   account-mongodb:
     image: clytze/piggy-mongodb
     restart: always
+    ports:
+      - "27018:27017"
+    command: [ "mongod", "--bind_ip", "0.0.0.0" ]
     logging:
       options:
         max-size: "10m"
         max-file: "10"
+    networks:
+      - eureka-network
 
   statistics-service:
     image: clytze/piggy-statistics-grpc
     restart: always
+    ports:
+      - "7000:7000"
+      - "9093:9093"
     depends_on:
       - statistics-mongodb
       - registry
@@ -59,18 +90,31 @@ services:
       options:
         max-size: "10m"
         max-file: "10"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://registry:8761/eureka/
+      SPRING_DATA_MONGODB_URI: mongodb://statistics-mongodb:27017/statisticsdb
+    networks:
+      - eureka-network
 
   statistics-mongodb:
     image: clytze/piggy-mongodb
     restart: always
+    ports:
+      - "27019:27017"
+    command: [ "mongod", "--bind_ip", "0.0.0.0" ]
     logging:
       options:
         max-size: "10m"
         max-file: "10"
+    networks:
+      - eureka-network
 
   notification-service:
     image: clytze/piggy-notification-grpc
     restart: always
+    ports:
+      - "8083:8083"
+      - "9092:9092"
     depends_on:
       - notification-mongodb
       - registry
@@ -78,11 +122,25 @@ services:
       options:
         max-size: "10m"
         max-file: "10"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://registry:8761/eureka/
+      SPRING_DATA_MONGODB_URI: mongodb://notification-mongodb:27017/notificationdb
+    networks:
+      - eureka-network
 
   notification-mongodb:
     image: clytze/piggy-mongodb
     restart: always
+    ports:
+      - "27020:27017"
+    command: [ "mongod", "--bind_ip", "0.0.0.0" ]
     logging:
       options:
         max-size: "10m"
         max-file: "10"
+    networks:
+      - eureka-network
+
+networks:
+  eureka-network:
+    driver: bridge

@@ -24,8 +24,8 @@ public class authGrpcClientImpl implements AuthClient{
     private final ManagedChannel channel;
 
     @Autowired
-    public authGrpcClientImpl(@Value("${order.service.host:localhost}") String host,
-                                 @Value("${order.service.port:9091}") int port){
+    public authGrpcClientImpl(@Value("${auth.server.host:localhost}") String host,
+                                 @Value("${auth.server.port:9091}") int port){
         this.channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext().build();
         this.authService = UserServiceGrpc.newBlockingStub(channel);

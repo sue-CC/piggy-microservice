@@ -45,7 +45,7 @@ public class AccountServiceClientImpl implements AccountServiceClient {
             AccountProto.GetAccountResponse response = accountService.getAccountByName(request);
 
             // Process the response
-            return response.getAccount().toString(); // Assuming 'getAccountDetails' method is correct
+            return response.getAccount().toString();
         } catch (Exception e) {
             logger.severe("Failed to get account details for " + name + ": " + e.getMessage());
             return null; // Handle errors appropriately

@@ -22,8 +22,8 @@ public class authClientImpl implements AuthServiceClient{
     private final ManagedChannel channel;
 
     @Autowired
-    public authClientImpl(@Value("${order.service.host:localhost}") String host,
-                              @Value("${order.service.port:9091}") int port){
+    public authClientImpl(@Value("${auth.service.host:localhost}") String host,
+                              @Value("${auth.service.port:9091}") int port){
         this.channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext().build();
         this.authService = UserServiceGrpc.newBlockingStub(channel);

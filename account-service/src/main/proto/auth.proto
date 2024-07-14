@@ -1,29 +1,29 @@
-//syntax = "proto3";
-//
-//option java_package = "com.piggy.microservice.auth.grpc";
-//option java_outer_classname = "UserProto";
-//
-//import "google/protobuf/empty.proto";
-//service UserService {
-//  rpc AddUser(UserRequest) returns (UserResponse);
-//  rpc GetUsers(google.protobuf.Empty) returns (UserListResponse);
-//}
-//
-//message User {
-//  string username = 1;
-//  string password = 2;
-//}
-//
-//message UserRequest {
-//  User user = 1;
-//}
-//
-//message UserResponse {
-//  string message = 1;
-//}
-//
-//message Empty {}
-//
-//message UserListResponse {
-//  repeated string users = 1;
-//}
+syntax = "proto3";
+
+option java_package = "com.piggy.microservice.auth.grpc";
+option java_outer_classname = "UserProto";
+
+import "google/protobuf/empty.proto";
+service UserService {
+  rpc AddUser(UserRequest) returns (UserResponse);
+  rpc GetUsers(google.protobuf.Empty) returns (UserListResponse);
+}
+
+message User {
+  string username = 1;
+  string password = 2;
+}
+
+message UserRequest {
+  User user = 1;
+}
+
+message UserResponse {
+  string message = 1;
+}
+
+message Empty {}
+
+message UserListResponse {
+  repeated string users = 1;
+}

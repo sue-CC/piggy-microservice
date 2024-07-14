@@ -6,17 +6,16 @@ option java_multiple_files = false;
 
 service AccountService {
   rpc GetAccountByName(GetAccountRequest) returns (GetAccountResponse);
-  rpc SaveCurrentAccount(SaveAccountRequest) returns (GetAccountResponse);
+  rpc SaveCurrentAccount(SaveAccountRequest) returns (SuccessMessage);
   rpc CreateNewAccount(CreateAccountRequest) returns (GetAccountResponse);
 }
 
 message Account {
   string name = 1;
-  string lastSeen = 2;
   repeated Item incomes = 3;
   repeated Item expenses = 4;
   Saving saving = 5;
-  string note = 6;
+  string note =6;
 }
 
 message Item {
@@ -24,7 +23,6 @@ message Item {
   string amount = 2; // this is the type of BigDecimal
   Currency currency = 3;
   TimePeriod period = 4;
-  string icon = 5;
 }
 
 enum Currency {
@@ -69,5 +67,7 @@ message CreateAccountRequest {
   string password = 2;
 }
 
-
+message SuccessMessage{
+  string successMessage = 1;
+}
 

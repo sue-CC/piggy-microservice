@@ -15,7 +15,7 @@ public class AuthGrpcServerConfiguration {
     private final UserServiceImpl userService;
 
 
-    public AuthGrpcServerConfiguration(@Value("${grpc.server.port:9091}")int port, UserServiceImpl userService) {
+    public AuthGrpcServerConfiguration(@Value("${auth.server.port:9091}")int port, UserServiceImpl userService) {
         this.userService = userService;
         System.out.println("AuthService injected: " + (userService != null));
         ServerBuilder<?> builder = ServerBuilder.forPort(port);

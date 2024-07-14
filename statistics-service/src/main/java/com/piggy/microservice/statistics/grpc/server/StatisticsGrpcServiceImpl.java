@@ -12,6 +12,7 @@ import com.piggy.microservice.statistics.grpc.StatisticsProto;
 import com.piggy.microservice.statistics.grpc.StatisticsServiceGrpc;
 import com.piggy.microservice.statistics.service.StatisticsServiceImpl;
 import io.grpc.stub.StreamObserver;
+import org.jruby.RubyProcess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -84,8 +85,11 @@ public class StatisticsGrpcServiceImpl extends StatisticsServiceGrpc.StatisticsS
     @Override
     public void updateAccountStatistics(StatisticsProto.UpdateAccountRequest request, StreamObserver<StatisticsProto.UpdateAccountResponse> responseObserver) {
         Account account = new Account();
-        account.setIncomes(convertItemsFromProto(request.getAccount().getIncomesList()));
         account.setExpenses(convertItemsFromProto(request.getAccount().getExpensesList()));
+
+        System.out.println("IncomeList:" + request.getAccount().getIncomesList());
+
+        account.setIncomes(convertItemsFromProto(request.getAccount().getIncomesList()));
         account.setSaving(convertSavingFromProto(request.getAccount().getSaving()));
 
         statisticsService.save(request.getName(), account);
@@ -113,22 +117,53 @@ public class StatisticsGrpcServiceImpl extends StatisticsServiceGrpc.StatisticsS
         return protoItems.stream().map(protoItem -> {
             Item item = new Item();
             item.setTitle(protoItem.getTitle());
-            item.setAmount(new BigDecimal(protoItem.getAmount()));
-            item.setCurrency(Currency.valueOf(protoItem.getCurrency().name())); // Convert Protobuf enum to Java enum
-            item.setPeriod(convertTimePeriodFromProto(protoItem.getPeriod()));  // Convert Protobuf TimePeriod to Java enum
+            System.out.println("title:" + item.getTitle());
+            String amountStr = protoItem.getAmount();
+            item.setAmount(new BigDecimal(amountStr));
+            System.out.println("amount:" + item.getAmount());
+            // currency
+            item.setCurrency(Currency.valueOf(protoItem.getCurrency().name()));
+
+            // time period
+            item.setPeriod(convertTimePeriodFromProto(protoItem.getPeriod()));
+
             return item;
         }).toList();
     }
 
 
+
     private Saving convertSavingFromProto(StatisticsProto.Saving protoSaving) {
         Saving saving = new Saving();
-        saving.setAmount(new BigDecimal(protoSaving.getAmount())); // Convert string to BigDecimal
+
+        // Validate and convert amount
+        String amountStr = protoSaving.getAmount();
+        if (amountStr == null || amountStr.trim().isEmpty()) {
+            throw new NumberFormatException("Input amount string is null or empty");
+        }
+        try {
+            saving.setAmount(new BigDecimal(amountStr));
+        } catch (NumberFormatException e) {
+            throw new NumberFormatException("Invalid BigDecimal input: " + amountStr);
+        }
+
         saving.setCurrency(Currency.valueOf(protoSaving.getCurrency().name())); // Convert Protobuf enum to Java enum
-        saving.setInterest(new BigDecimal(protoSaving.getInterest())); // Convert string to BigDecimal
+
+        // Validate and convert interest
+        String interestStr = protoSaving.getInterest();
+        if (interestStr == null || interestStr.trim().isEmpty()) {
+            throw new NumberFormatException("Input interest string is null or empty");
+        }
+        try {
+            saving.setInterest(new BigDecimal(interestStr));
+        } catch (NumberFormatException e) {
+            throw new NumberFormatException("Invalid BigDecimal input: " + interestStr);
+        }
+
         saving.setDeposit(protoSaving.getDeposit()); // Convert boolean
         saving.setCapitalization(protoSaving.getCapitalization()); // Convert boolean
         return saving;
     }
+
 
 }

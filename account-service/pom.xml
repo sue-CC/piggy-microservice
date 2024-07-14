@@ -59,7 +59,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
-            <version>2.3.4.RELEASE</version>
+            <version>3.3.1</version>
             <scope>compile</scope>
         </dependency>
 
@@ -142,18 +142,13 @@
             <version>2.12.5</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>com.piggy.microservice.auth</groupId>
-            <artifactId>auth-service</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.piggy.microservice.statistics</groupId>
-            <artifactId>statistics-service</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.piggy.microservice.auth</groupId>-->
+<!--            <artifactId>auth-service</artifactId>-->
+<!--            <version>0.0.1-SNAPSHOT</version>-->
+<!--            <scope>compile</scope>-->
+<!--        </dependency>-->
+
 
 
     </dependencies>
@@ -216,6 +211,10 @@
                         </manifest>
                     </archive>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>

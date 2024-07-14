@@ -15,7 +15,7 @@ public class StatisticsGrpcServerConfiguration {
     private final StatisticsServiceImpl statisticsService;
 
 
-    public StatisticsGrpcServerConfiguration(@Value("${grpc.server.port:9093}")int port, StatisticsServiceImpl statisticsService) {
+    public StatisticsGrpcServerConfiguration(@Value("${statistics.server.port:9093}")int port, StatisticsServiceImpl statisticsService) {
         this.statisticsService = statisticsService;
         System.out.println("StatisticsService injected: " + (statisticsService != null));
         ServerBuilder<?> builder = ServerBuilder.forPort(port);

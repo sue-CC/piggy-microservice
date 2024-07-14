@@ -1,9 +1,6 @@
 package com.piggy.microservice.statistics.grpc.client;
 
-import com.piggy.microservice.statistics.domain.Account;
-import com.piggy.microservice.statistics.domain.Currency;
-import com.piggy.microservice.statistics.domain.Item;
-import com.piggy.microservice.statistics.domain.TimePeriod;
+import com.piggy.microservice.statistics.domain.*;
 import com.piggy.microservice.statistics.domain.timeseries.DataPoint;
 import com.piggy.microservice.statistics.domain.timeseries.DataPointId;
 import com.piggy.microservice.statistics.domain.timeseries.ItemMetric;
@@ -33,8 +30,8 @@ public class statisticsClientImpl implements StatisticsClient {
     private final ManagedChannel channel;
 
     @Autowired
-    public statisticsClientImpl(@Value("${order.service.host:localhost}") String host,
-                                 @Value("${order.service.port:9093}") int port){
+    public statisticsClientImpl(@Value("${statistics.service.host:localhost}") String host,
+                                 @Value("${statistics.server.port:9093}") int port){
         this.channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext().build();
         this.statisticsService = StatisticsServiceGrpc.newBlockingStub(channel);
@@ -135,6 +132,45 @@ public class statisticsClientImpl implements StatisticsClient {
 
         // Return the response message
         return response.getMessage();
+
+//        StatisticsProto.Account protoAccount = StatisticsProto.Account.newBuilder()
+//                .addAllIncomes(account.getIncomes().stream().map(item ->
+//                        StatisticsProto.Item.newBuilder()
+//                                .setTitle(item.getTitle())
+//                                .setAmount(item.getAmount().toString())
+//                                .setCurrency(StatisticsProto.Currency.valueOf(item.getCurrency().name())) // Convert Java enum to Protobuf enum
+//                                .setPeriod(convertTimePeriodToProto(item.getPeriod())) // Convert Java TimePeriod to Protobuf enum
+//                                .build()
+//                ).collect(Collectors.toList()))
+//                .addAllExpenses(account.getExpenses().stream().map(item ->
+//                        StatisticsProto.Item.newBuilder()
+//                                .setTitle(item.getTitle())
+//                                .setAmount(item.getAmount().toString())
+//                                .setCurrency(StatisticsProto.Currency.valueOf(item.getCurrency().name())) // Convert Java enum to Protobuf enum
+//                                .setPeriod(convertTimePeriodToProto(item.getPeriod())) // Convert Java TimePeriod to Protobuf enum
+//                                .build()
+//                ).collect(Collectors.toList()))
+//                .setSaving(StatisticsProto.Saving.newBuilder()
+//                        .setAmount(account.getSaving().getAmount().toString())
+//                        .setCurrency(StatisticsProto.Currency.valueOf(account.getSaving().getCurrency().name())) // Convert Java enum to Protobuf enum
+//                        .setInterest(account.getSaving().getInterest().toString())
+//                        .setDeposit(account.getSaving().getDeposit())
+//                        .setCapitalization(account.getSaving().getCapitalization())
+//                        .build()
+//                )
+//                .build();
+//
+//        // Create the gRPC request
+//        StatisticsProto.UpdateAccountRequest request = StatisticsProto.UpdateAccountRequest.newBuilder()
+//                .setName(accountName)
+//                .setAccount(protoAccount)
+//                .build();
+//
+//        // Call the gRPC service and get the response
+//        StatisticsProto.UpdateAccountResponse response = statisticsService.updateAccountStatistics(request);
+//
+//        // Return the response message
+//        return response.getMessage();
     }
 
     // Utility method to convert Java TimePeriod to Protobuf TimePeriod
@@ -170,6 +206,20 @@ public class statisticsClientImpl implements StatisticsClient {
                 return TimePeriod.HOUR;
             default:
                 throw new IllegalArgumentException("Unknown TimePeriod: " + protoTimePeriod);
+        }
+    }
+
+
+    private StatisticsProto.Currency convertToGrpcCurrency(Currency currency) {
+        switch (currency) {
+            case USD:
+                return StatisticsProto.Currency.USD;
+            case EUR:
+                return StatisticsProto.Currency.EUR;
+            case RUB:
+                return StatisticsProto.Currency.RUB;
+            default:
+                throw new IllegalArgumentException("Unknown currency: " + currency);
         }
     }
 
