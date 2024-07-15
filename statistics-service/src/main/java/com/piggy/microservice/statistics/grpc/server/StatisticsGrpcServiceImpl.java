@@ -12,7 +12,6 @@ import com.piggy.microservice.statistics.grpc.StatisticsProto;
 import com.piggy.microservice.statistics.grpc.StatisticsServiceGrpc;
 import com.piggy.microservice.statistics.service.StatisticsServiceImpl;
 import io.grpc.stub.StreamObserver;
-import org.jruby.RubyProcess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -87,7 +86,7 @@ public class StatisticsGrpcServiceImpl extends StatisticsServiceGrpc.StatisticsS
         Account account = new Account();
         account.setExpenses(convertItemsFromProto(request.getAccount().getExpensesList()));
 
-        System.out.println("IncomeList:" + request.getAccount().getIncomesList());
+//        System.out.println("IncomeList:" + request.getAccount().getIncomesList());
 
         account.setIncomes(convertItemsFromProto(request.getAccount().getIncomesList()));
         account.setSaving(convertSavingFromProto(request.getAccount().getSaving()));
@@ -117,10 +116,10 @@ public class StatisticsGrpcServiceImpl extends StatisticsServiceGrpc.StatisticsS
         return protoItems.stream().map(protoItem -> {
             Item item = new Item();
             item.setTitle(protoItem.getTitle());
-            System.out.println("title:" + item.getTitle());
+//            System.out.println("title:" + item.getTitle());
             String amountStr = protoItem.getAmount();
             item.setAmount(new BigDecimal(amountStr));
-            System.out.println("amount:" + item.getAmount());
+//            System.out.println("amount:" + item.getAmount());
             // currency
             item.setCurrency(Currency.valueOf(protoItem.getCurrency().name()));
 

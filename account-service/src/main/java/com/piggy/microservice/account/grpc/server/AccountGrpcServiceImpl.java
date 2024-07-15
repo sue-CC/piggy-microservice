@@ -61,31 +61,7 @@ public class AccountGrpcServiceImpl extends AccountServiceGrpc.AccountServiceImp
         responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
-//    @Override
-//    public void saveCurrentAccount(AccountProto.SaveAccountRequest request, StreamObserver<AccountProto.SuccessMessage> responseObserver) {
-//        Account account = accountService.findByName(request.getAccountName());
-//        // Update the account with the provided incomes, expenses, and saving
-//        account.setIncomes(request.getIncomesList().stream()
-//                .map(this::convertFromGrpcItem)
-//                .collect(Collectors.toList()));
-//        account.setExpenses(request.getExpensesList().stream()
-//                .map(this::convertFromGrpcItem)
-//                .collect(Collectors.toList()));
-//
-//        account.setSaving(convertFromGrpcSaving(request.getSaving()));
-//
-//        // Save the updated account
-////        accountService.saveChanges(request.getAccountName(), account);
-//
-//        // Create the response
-//        AccountProto.SuccessMessage response = AccountProto.SuccessMessage.newBuilder()
-//                .setSuccessMessage("Account updated successfully.")
-//                .build();
-//
-//        // Send the response
-//        responseObserver.onNext(response);
-//        responseObserver.onCompleted();
-//    }
+
 
     @Override
     public void createNewAccount(AccountProto.CreateAccountRequest request, StreamObserver<AccountProto.GetAccountResponse> responseObserver) {

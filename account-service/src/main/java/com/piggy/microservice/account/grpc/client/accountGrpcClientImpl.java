@@ -13,7 +13,6 @@ import java.math.BigDecimal;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-//@EnableDiscoveryClient
 @Component
 public class accountGrpcClientImpl implements AccountClient {
 
@@ -22,7 +21,7 @@ public class accountGrpcClientImpl implements AccountClient {
     private final ManagedChannel channel;
 
     @Autowired
-    public accountGrpcClientImpl(@Value("${account.service.host:localhost}") String host,
+    public accountGrpcClientImpl(@Value("${account.server.host:account-service}") String host,
                                  @Value("${account.server.port:9090}") int port){
         this.channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext().build();

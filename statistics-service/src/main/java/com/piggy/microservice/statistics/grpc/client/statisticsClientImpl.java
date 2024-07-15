@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+
 @Component
 public class statisticsClientImpl implements StatisticsClient {
 
@@ -30,7 +31,7 @@ public class statisticsClientImpl implements StatisticsClient {
     private final ManagedChannel channel;
 
     @Autowired
-    public statisticsClientImpl(@Value("${statistics.service.host:localhost}") String host,
+    public statisticsClientImpl(@Value("${statistics.server.host:statistics-service}") String host,
                                  @Value("${statistics.server.port:9093}") int port){
         this.channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext().build();
@@ -132,45 +133,6 @@ public class statisticsClientImpl implements StatisticsClient {
 
         // Return the response message
         return response.getMessage();
-
-//        StatisticsProto.Account protoAccount = StatisticsProto.Account.newBuilder()
-//                .addAllIncomes(account.getIncomes().stream().map(item ->
-//                        StatisticsProto.Item.newBuilder()
-//                                .setTitle(item.getTitle())
-//                                .setAmount(item.getAmount().toString())
-//                                .setCurrency(StatisticsProto.Currency.valueOf(item.getCurrency().name())) // Convert Java enum to Protobuf enum
-//                                .setPeriod(convertTimePeriodToProto(item.getPeriod())) // Convert Java TimePeriod to Protobuf enum
-//                                .build()
-//                ).collect(Collectors.toList()))
-//                .addAllExpenses(account.getExpenses().stream().map(item ->
-//                        StatisticsProto.Item.newBuilder()
-//                                .setTitle(item.getTitle())
-//                                .setAmount(item.getAmount().toString())
-//                                .setCurrency(StatisticsProto.Currency.valueOf(item.getCurrency().name())) // Convert Java enum to Protobuf enum
-//                                .setPeriod(convertTimePeriodToProto(item.getPeriod())) // Convert Java TimePeriod to Protobuf enum
-//                                .build()
-//                ).collect(Collectors.toList()))
-//                .setSaving(StatisticsProto.Saving.newBuilder()
-//                        .setAmount(account.getSaving().getAmount().toString())
-//                        .setCurrency(StatisticsProto.Currency.valueOf(account.getSaving().getCurrency().name())) // Convert Java enum to Protobuf enum
-//                        .setInterest(account.getSaving().getInterest().toString())
-//                        .setDeposit(account.getSaving().getDeposit())
-//                        .setCapitalization(account.getSaving().getCapitalization())
-//                        .build()
-//                )
-//                .build();
-//
-//        // Create the gRPC request
-//        StatisticsProto.UpdateAccountRequest request = StatisticsProto.UpdateAccountRequest.newBuilder()
-//                .setName(accountName)
-//                .setAccount(protoAccount)
-//                .build();
-//
-//        // Call the gRPC service and get the response
-//        StatisticsProto.UpdateAccountResponse response = statisticsService.updateAccountStatistics(request);
-//
-//        // Return the response message
-//        return response.getMessage();
     }
 
     // Utility method to convert Java TimePeriod to Protobuf TimePeriod
@@ -190,37 +152,4 @@ public class statisticsClientImpl implements StatisticsClient {
                 throw new IllegalArgumentException("Unknown TimePeriod: " + timePeriod);
         }
     }
-
-    // Utility method to convert Protobuf TimePeriod to Java TimePeriod
-    private TimePeriod convertTimePeriodFromProto(StatisticsProto.TimePeriod protoTimePeriod) {
-        switch (protoTimePeriod) {
-            case YEAR:
-                return TimePeriod.YEAR;
-            case QUARTER:
-                return TimePeriod.QUARTER;
-            case MONTH:
-                return TimePeriod.MONTH;
-            case DAY:
-                return TimePeriod.DAY;
-            case HOUR:
-                return TimePeriod.HOUR;
-            default:
-                throw new IllegalArgumentException("Unknown TimePeriod: " + protoTimePeriod);
-        }
-    }
-
-
-    private StatisticsProto.Currency convertToGrpcCurrency(Currency currency) {
-        switch (currency) {
-            case USD:
-                return StatisticsProto.Currency.USD;
-            case EUR:
-                return StatisticsProto.Currency.EUR;
-            case RUB:
-                return StatisticsProto.Currency.RUB;
-            default:
-                throw new IllegalArgumentException("Unknown currency: " + currency);
-        }
-    }
-
 }

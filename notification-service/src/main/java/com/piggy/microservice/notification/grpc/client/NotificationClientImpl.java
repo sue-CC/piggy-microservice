@@ -28,7 +28,7 @@ public class NotificationClientImpl implements NotificationClient {
     private final ManagedChannel channel;
 
     @Autowired
-    public NotificationClientImpl(@Value("${notification.service.host:localhost}") String host,
+    public NotificationClientImpl(@Value("${notification.server.host:notification-service}") String host,
                                   @Value("${notification.server.port:9092}") int port) {
         this.channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext().build();

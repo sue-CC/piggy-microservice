@@ -1,6 +1,5 @@
 package com.piggy.microservice.account.clients;
 
-import com.google.protobuf.Empty;
 import com.piggy.microservice.account.domain.User;
 import com.piggy.microservice.auth.grpc.UserProto;
 import com.piggy.microservice.auth.grpc.UserServiceGrpc;
@@ -22,8 +21,8 @@ public class authClientImpl implements AuthServiceClient{
     private final ManagedChannel channel;
 
     @Autowired
-    public authClientImpl(@Value("${auth.service.host:localhost}") String host,
-                              @Value("${auth.service.port:9091}") int port){
+    public authClientImpl(@Value("${auth.server.host:auth-service}") String host,
+                              @Value("${auth.server.port:9091}") int port){
         this.channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext().build();
         this.authService = UserServiceGrpc.newBlockingStub(channel);

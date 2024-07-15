@@ -1,17 +1,17 @@
 package com.piggy.microservice.account.grpc.server;
 
-import com.piggy.microservice.account.clients.AuthServiceClient;
 import com.piggy.microservice.account.clients.authClientImpl;
 import com.piggy.microservice.account.service.AccountServiceImpl;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+@EnableDiscoveryClient
 @Component
 public class AccountGrpcServerConfiguration {
     private final Server server;

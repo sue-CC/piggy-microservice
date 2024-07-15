@@ -20,7 +20,6 @@ public class AuthGrpcServerConfiguration {
         System.out.println("AuthService injected: " + (userService != null));
         ServerBuilder<?> builder = ServerBuilder.forPort(port);
         builder.addService(new UserGrpcServiceImpl(userService));
-//                .intercept(new AuthInterceptor());
         this.server = builder.build();
     }
 

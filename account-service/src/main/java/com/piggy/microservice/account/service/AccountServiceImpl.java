@@ -2,7 +2,6 @@ package com.piggy.microservice.account.service;
 
 import com.piggy.microservice.account.clients.StatisticsClientImpl;
 import com.piggy.microservice.account.clients.authClientImpl;
-import com.piggy.microservice.account.clients.StatisticsServiceClient;
 import com.piggy.microservice.account.domain.Account;
 import com.piggy.microservice.account.domain.Currency;
 import com.piggy.microservice.account.domain.Saving;
@@ -77,21 +76,6 @@ public class AccountServiceImpl implements AccountService {
 
         log.info("save changes have been saved: " + account.getName());
 
-//        // Convert and update the statistics
-//        AccountS accountStats = new AccountS();
-//
-//        // Convert incomes
-//        accountStats.setIncomes(update.getIncomes().stream()
-//                .map(this::convertToStatisticsItem)
-//                .collect(Collectors.toList()));
-//
-//        // Convert expenses
-//        accountStats.setExpenses(update.getExpenses().stream()
-//                .map(this::convertToStatisticsItem)
-//                .collect(Collectors.toList()));
-//
-//        // Convert saving
-//        accountStats.setSaving(convertToStatisticsSaving(update.getSaving()));
 
         String responseMessage = statisticsServiceClient.updateAccountStatistics(name, account);
         log.info("Statistics service response: " + responseMessage);

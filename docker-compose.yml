@@ -28,7 +28,7 @@ services:
         max-file: "10"
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://registry:8761/eureka/
-      SPRING_DATA_MONGODB_URI: mongodb://auth-mongodb:27017/authdb
+      SPRING_DATA_MONGODB_URI: mongodb://auth-mongodb:27017/auth-service
     networks:
       - eureka-network
 
@@ -37,7 +37,7 @@ services:
     restart: always
     ports:
       - "27017:27017"
-    command: [ "mongod", "--bind_ip", "0.0.0.0" ]
+    command: mongod --bind_ip_all
     logging:
       options:
         max-size: "10m"
@@ -60,7 +60,7 @@ services:
         max-file: "10"
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://registry:8761/eureka/
-      SPRING_DATA_MONGODB_URI: mongodb://account-mongodb:27017/accountdb
+      SPRING_DATA_MONGODB_URI: mongodb://account-mongodb:27017/account-service
     networks:
       - eureka-network
 
@@ -69,7 +69,7 @@ services:
     restart: always
     ports:
       - "27018:27017"
-    command: [ "mongod", "--bind_ip", "0.0.0.0" ]
+    command: mongod --bind_ip_all
     logging:
       options:
         max-size: "10m"
@@ -92,7 +92,7 @@ services:
         max-file: "10"
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://registry:8761/eureka/
-      SPRING_DATA_MONGODB_URI: mongodb://statistics-mongodb:27017/statisticsdb
+      SPRING_DATA_MONGODB_URI: mongodb://statistics-mongodb:27017/statistics-service
     networks:
       - eureka-network
 
@@ -101,7 +101,7 @@ services:
     restart: always
     ports:
       - "27019:27017"
-    command: [ "mongod", "--bind_ip", "0.0.0.0" ]
+    command: mongod --bind_ip_all
     logging:
       options:
         max-size: "10m"
@@ -124,7 +124,7 @@ services:
         max-file: "10"
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://registry:8761/eureka/
-      SPRING_DATA_MONGODB_URI: mongodb://notification-mongodb:27017/notificationdb
+      SPRING_DATA_MONGODB_URI: mongodb://notification-mongodb:27017/notification-service
     networks:
       - eureka-network
 
@@ -133,7 +133,7 @@ services:
     restart: always
     ports:
       - "27020:27017"
-    command: [ "mongod", "--bind_ip", "0.0.0.0" ]
+    command: mongod --bind_ip_all
     logging:
       options:
         max-size: "10m"
