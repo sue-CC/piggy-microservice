@@ -14,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Date;
 
 @Service
 public class AccountServiceImpl implements AccountService{
@@ -57,7 +55,6 @@ public class AccountServiceImpl implements AccountService{
 
         Account account = new Account();
         account.setName(user.getUsername());
-        account.setLastSeen(new Date());
         account.setSaving(saving);
 
         accountRepository.save(account);
@@ -77,7 +74,6 @@ public class AccountServiceImpl implements AccountService{
         account.setExpenses(update.getExpenses());
         account.setSaving(update.getSaving());
         account.setNote(update.getNote());
-        account.setLastSeen(new Date());
         accountRepository.save(account);
         log.info("save changes has been saved: " + account.getName());
 

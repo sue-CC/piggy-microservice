@@ -18,9 +18,6 @@ public class Item {
     @NotNull
     private TimePeriod period;
 
-    @NotNull
-    private String icon;
-
     public String getTitle() {
         return title;
     }
@@ -53,11 +50,4 @@ public class Item {
         this.period = period;
     }
 
-    public String getIcon() {
-        return icon;
-    }
-
-    public void setIcon(String icon) {
-        this.icon = icon;
-    }
 }

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -48,6 +49,19 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No users found.");
         }
         return ResponseEntity.ok(users);
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE)
+    public ResponseEntity<String> deleteUser(@RequestBody User user) {
+        log.info("Attempting to delete user: {}", user.getUsername());
+
+        User userOptional = userRepository.findByUsername(user.getUsername());
+        if (userOptional != null) {
+            userRepository.delete(user);
+            return ResponseEntity.status(HttpStatus.OK).body("User deleted successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+        }
     }
 
 

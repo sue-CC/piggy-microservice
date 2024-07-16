@@ -17,8 +17,6 @@ public class Account {
     @Id
     private String name;
 
-    private Date lastSeen;
-
     @Valid
     private List<Item> incomes;
 
@@ -38,14 +36,6 @@ public class Account {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Date getLastSeen() {
-        return lastSeen;
-    }
-
-    public void setLastSeen(Date lastSeen) {
-        this.lastSeen = lastSeen;
     }
 
     public List<Item> getIncomes() {
