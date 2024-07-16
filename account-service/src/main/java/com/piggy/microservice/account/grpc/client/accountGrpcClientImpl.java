@@ -21,7 +21,7 @@ public class accountGrpcClientImpl implements AccountClient {
     private final ManagedChannel channel;
 
     @Autowired
-    public accountGrpcClientImpl(@Value("${account.server.host:account-service}") String host,
+    public accountGrpcClientImpl(@Value("${account.server.host:account-service-grpc}") String host,
                                  @Value("${account.server.port:9090}") int port){
         this.channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext().build();

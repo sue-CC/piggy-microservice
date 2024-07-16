@@ -11,7 +11,6 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
@@ -20,7 +19,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-//@EnableDiscoveryClient
 @Component
 public class NotificationClientImpl implements NotificationClient {
     private static final Logger logger = Logger.getLogger(NotificationClientImpl.class.getName());
@@ -28,7 +26,7 @@ public class NotificationClientImpl implements NotificationClient {
     private final ManagedChannel channel;
 
     @Autowired
-    public NotificationClientImpl(@Value("${notification.server.host:notification-service}") String host,
+    public NotificationClientImpl(@Value("${notification.server.host:notification-service-grpc}") String host,
                                   @Value("${notification.server.port:9092}") int port) {
         this.channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext().build();

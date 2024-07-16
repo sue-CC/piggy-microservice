@@ -130,8 +130,6 @@ public class StatisticsGrpcServiceImpl extends StatisticsServiceGrpc.StatisticsS
         }).toList();
     }
 
-
-
     private Saving convertSavingFromProto(StatisticsProto.Saving protoSaving) {
         Saving saving = new Saving();
 

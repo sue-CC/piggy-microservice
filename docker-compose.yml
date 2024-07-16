@@ -13,11 +13,10 @@ services:
     networks:
       - eureka-network
 
-  auth-service:
+  auth-service-grpc:
     image: clytze/piggy-auth-grpc
     restart: always
     ports:
-      - "5000:5000"
       - "9091:9091"
     depends_on:
       - auth-mongodb
@@ -45,11 +44,10 @@ services:
     networks:
       - eureka-network
 
-  account-service:
+  account-service-grpc:
     image: clytze/piggy-account-grpc
     restart: always
     ports:
-      - "6000:6000"
       - "9090:9090"
     depends_on:
       - account-mongodb
@@ -77,11 +75,10 @@ services:
     networks:
       - eureka-network
 
-  statistics-service:
+  statistics-service-grpc:
     image: clytze/piggy-statistics-grpc
     restart: always
     ports:
-      - "7000:7000"
       - "9093:9093"
     depends_on:
       - statistics-mongodb
@@ -109,11 +106,10 @@ services:
     networks:
       - eureka-network
 
-  notification-service:
+  notification-service-grpc:
     image: clytze/piggy-notification-grpc
     restart: always
     ports:
-      - "8083:8083"
       - "9092:9092"
     depends_on:
       - notification-mongodb

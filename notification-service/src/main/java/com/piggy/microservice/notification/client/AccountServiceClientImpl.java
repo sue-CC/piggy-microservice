@@ -18,7 +18,7 @@ public class AccountServiceClientImpl implements AccountServiceClient {
     private final ManagedChannel channel;
 
     @Autowired
-    public AccountServiceClientImpl(@Value("${account.server.host:account-service}") String host,
+    public AccountServiceClientImpl(@Value("${account.server.host:account-service-grpc}") String host,
                                     @Value("${account.server.port:9090}") int port) {
         this.channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext() // Note: For production use, consider using encryption (TLS)

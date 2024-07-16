@@ -21,7 +21,7 @@ public class StatisticsClientImpl implements StatisticsServiceClient {
     private final ManagedChannel channel;
 
     @Autowired
-    public StatisticsClientImpl(@Value("${statistics.server.host:statistics-service}") String host,
+    public StatisticsClientImpl(@Value("${statistics.server.host:statistics-service-grpc}") String host,
                                 @Value("${statistics.server.port:9093}") int port) {
         this.channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext().build();

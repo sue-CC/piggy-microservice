@@ -9,7 +9,6 @@ import com.piggy.microservice.statistics.grpc.StatisticsProto;
 import com.piggy.microservice.statistics.grpc.StatisticsServiceGrpc;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -31,7 +30,7 @@ public class statisticsClientImpl implements StatisticsClient {
     private final ManagedChannel channel;
 
     @Autowired
-    public statisticsClientImpl(@Value("${statistics.server.host:statistics-service}") String host,
+    public statisticsClientImpl(@Value("${statistics.server.host:statistics-service-grpc}") String host,
                                  @Value("${statistics.server.port:9093}") int port){
         this.channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext().build();

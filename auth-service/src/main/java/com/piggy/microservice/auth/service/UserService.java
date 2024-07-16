@@ -7,4 +7,5 @@ import org.springframework.stereotype.Component;
 public interface UserService {
     String createUser(User user);
     Iterable<String> getAllUsers();
+    void deleteUser(User user);
 }

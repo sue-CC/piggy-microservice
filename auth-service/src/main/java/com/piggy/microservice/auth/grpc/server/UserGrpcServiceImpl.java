@@ -60,4 +60,19 @@ public class UserGrpcServiceImpl extends UserServiceGrpc.UserServiceImplBase {
         responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
+
+    @Override
+    public void deleteUsers(UserProto.UserRequest request, StreamObserver<UserProto.DeleteMessage> responseObserver) {
+        User user = new User();
+        user.setUsername(request.getUser().getUsername());
+        user.setPassword(request.getUser().getPassword());
+            userService.deleteUser(user);
+            String responseMessage = "User deleted successfully";
+            UserProto.DeleteMessage response = UserProto.DeleteMessage.newBuilder()
+                    .setDeleteMessage(responseMessage)
+                    .build();
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        }
+
 }

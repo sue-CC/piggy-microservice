@@ -3,7 +3,6 @@ package com.piggy.microservice.account.grpc.server;
 import com.piggy.microservice.account.domain.*;
 import com.piggy.microservice.account.grpc.AccountProto;
 import com.piggy.microservice.account.grpc.AccountServiceGrpc;
-import com.piggy.microservice.account.service.AccountService;
 import com.piggy.microservice.account.service.AccountServiceImpl;
 import io.grpc.stub.StreamObserver;
 import org.springframework.beans.factory.annotation.Autowired;

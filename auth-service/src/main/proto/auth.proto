@@ -7,6 +7,7 @@ import "google/protobuf/empty.proto";
 service UserService {
   rpc AddUser(UserRequest) returns (UserResponse);
   rpc GetUsers(google.protobuf.Empty) returns (UserListResponse);
+  rpc DeleteUsers(UserRequest) returns (DeleteMessage);
 }
 
 message User {
@@ -22,8 +23,10 @@ message UserResponse {
   string message = 1;
 }
 
-message Empty {}
-
 message UserListResponse {
   repeated string users = 1;
+}
+
+message DeleteMessage{
+  string deleteMessage = 1;
 }

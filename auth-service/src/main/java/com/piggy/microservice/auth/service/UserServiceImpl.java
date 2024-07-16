@@ -52,4 +52,14 @@ public class UserServiceImpl implements UserService{
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public void deleteUser(User user) {
+        User userToDelete = userRepository.findByUsername(user.getUsername());
+        if(userToDelete != null) {
+            userRepository.delete(userToDelete);
+        } else {
+            throw new IllegalArgumentException("user does not exist: " + user.getUsername());
+        }
+    }
+
 }

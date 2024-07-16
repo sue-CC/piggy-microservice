@@ -21,7 +21,7 @@ public class authClientImpl implements AuthServiceClient{
     private final ManagedChannel channel;
 
     @Autowired
-    public authClientImpl(@Value("${auth.server.host:auth-service}") String host,
+    public authClientImpl(@Value("${auth.server.host:auth-service-grpc}") String host,
                               @Value("${auth.server.port:9091}") int port){
         this.channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext().build();

@@ -14,7 +14,6 @@ import com.google.protobuf.Empty;
 import javax.annotation.PreDestroy;
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 @Component
 public class authGrpcClientImpl implements AuthClient{
@@ -24,7 +23,7 @@ public class authGrpcClientImpl implements AuthClient{
     private final ManagedChannel channel;
 
     @Autowired
-    public authGrpcClientImpl(@Value("${auth.server.host:auth-service}") String host,
+    public authGrpcClientImpl(@Value("${auth.server.host:auth-service-grpc}") String host,
                                  @Value("${auth.server.port:9091}") int port){
         this.channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext().build();
@@ -72,5 +71,23 @@ public class authGrpcClientImpl implements AuthClient{
 
         // Extract usernames from the response and return them as a List<String>
         return response.getUsersList(); // Directly use getUsernamesList() to get a list of usernames
+    }
+
+    @Override
+    public String deleteUser(User user) {
+        UserProto.User grpcUser= UserProto.User.newBuilder()
+                .setUsername(user.getUsername())
+                .setPassword(user.getPassword())
+                .build();
+        UserProto.UserRequest request = UserProto.UserRequest.newBuilder().setUser(grpcUser).build();
+        UserProto.DeleteMessage response;
+        try {
+            response = authService.deleteUsers(request);
+        } catch (StatusRuntimeException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to delete users: " + e.getMessage());
+        }
+
+        return response.getDeleteMessage();
     }
 }
