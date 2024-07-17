@@ -37,10 +37,8 @@ services:
     ports:
       - "27017:27017"
     command: mongod --bind_ip_all
-    logging:
-      options:
-        max-size: "10m"
-        max-file: "10"
+    volumes:
+      - auth-mongodb-data:/data/db
     networks:
       - eureka-network
 
@@ -68,10 +66,8 @@ services:
     ports:
       - "27018:27017"
     command: mongod --bind_ip_all
-    logging:
-      options:
-        max-size: "10m"
-        max-file: "10"
+    volumes:
+      - account-mongodb-data:/data/db
     networks:
       - eureka-network
 
@@ -99,10 +95,8 @@ services:
     ports:
       - "27019:27017"
     command: mongod --bind_ip_all
-    logging:
-      options:
-        max-size: "10m"
-        max-file: "10"
+    volumes:
+      - statistics-mongodb-data:/data/db
     networks:
       - eureka-network
 
@@ -130,13 +124,32 @@ services:
     ports:
       - "27020:27017"
     command: mongod --bind_ip_all
-    logging:
-      options:
-        max-size: "10m"
-        max-file: "10"
+    volumes:
+      - notification-mongodb-data:/data/db
+    networks:
+      - eureka-network
+
+  locust:
+    image: locustio/locust
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./experiment-script:/experiment-script
+    depends_on:
+      - auth-service-rest
+      - account-service-rest
+      - statistics-service-rest
+      - notification-service-rest
+    command: -f /experiment-script/locustfile.py --host=http://account-service-rest:6000
     networks:
       - eureka-network
 
 networks:
   eureka-network:
     driver: bridge
+
+volumes:
+  auth-mongodb-data:
+  account-mongodb-data:
+  statistics-mongodb-data:
+  notification-mongodb-data:
