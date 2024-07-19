@@ -7,7 +7,7 @@ echo "Starting MongoDB setup..."
 (
 if test -n "$INIT_DUMP"; then
     echo "Executing dump file on the piggy database"
-    until mongo piggy $INIT_DUMP; do sleep 5; done
+    until mongo "$DB_NAME" "$INIT_DUMP"; do sleep 5; done
 fi
 ) &
 

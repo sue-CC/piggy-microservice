@@ -37,8 +37,10 @@ services:
     ports:
       - "27017:27017"
     command: mongod --bind_ip_all
-    volumes:
-      - auth-mongodb-data:/data/db
+    tmpfs:
+      - /data/db
+    environment:
+      - DB_NAME=auth-service
     networks:
       - eureka-network
 
@@ -66,8 +68,10 @@ services:
     ports:
       - "27018:27017"
     command: mongod --bind_ip_all
-    volumes:
-      - account-mongodb-data:/data/db
+    tmpfs:
+      - /data/db
+    environment:
+      - DB_NAME=account-service
     networks:
       - eureka-network
 
@@ -95,8 +99,10 @@ services:
     ports:
       - "27019:27017"
     command: mongod --bind_ip_all
-    volumes:
-      - statistics-mongodb-data:/data/db
+    tmpfs:
+      - /data/db
+    environment:
+      - DB_NAME=statistics-service
     networks:
       - eureka-network
 
@@ -124,8 +130,10 @@ services:
     ports:
       - "27020:27017"
     command: mongod --bind_ip_all
-    volumes:
-      - notification-mongodb-data:/data/db
+    tmpfs:
+      - /data/db
+    environment:
+      - DB_NAME=notification-service
     networks:
       - eureka-network
 #
@@ -147,8 +155,8 @@ networks:
   eureka-network:
     driver: bridge
 
-volumes:
-  auth-mongodb-data:
-  account-mongodb-data:
-  statistics-mongodb-data:
-  notification-mongodb-data:
+#volumes:
+#  auth-mongodb-data:
+#  account-mongodb-data:
+#  statistics-mongodb-data:
+#  notification-mongodb-data:

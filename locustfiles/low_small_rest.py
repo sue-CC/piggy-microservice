@@ -9,7 +9,7 @@ from threading import Lock, Timer
 logging.basicConfig(level=logging.INFO)
 
 # Define environment variables
-FREQUENCY_LEVEL = os.getenv('FREQUENCY_LEVEL', 'high')
+FREQUENCY_LEVEL = os.getenv('FREQUENCY_LEVEL', 'low')
 SIZE_LEVEL = os.getenv('SIZE_LEVEL', 'small')
 
 # Set mappings
@@ -20,7 +20,7 @@ max_requests = {"create_account": 800,
                 "get_account": 800,
                 "update_account": 800,
                 "get_auth": 800,
-                "delete_auth": 800,
+                "update_auth": 800,
                 "post_auth": 800,
                 "get_statistics": 800,
                 "update_statistics": 800,
@@ -31,7 +31,7 @@ total_requests = {"create_account": 0,
                   "get_account": 0,
                   "update_account": 0,
                   "get_auth": 0,
-                  "delete_auth": 0,
+                  "update_auth": 0,
                   "post_auth": 0,
                   "get_statistics": 0,
                   "update_statistics": 0,
@@ -39,7 +39,7 @@ total_requests = {"create_account": 0,
                   "update_recipient": 0
                   }
 # Global maximum requests across all users
-global_max_requests = 400
+global_max_requests = 8
 
 
 class AccountServiceTasks(SequentialTaskSet):
@@ -47,13 +47,14 @@ class AccountServiceTasks(SequentialTaskSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.locks = [Lock() for _ in range(10)]
-        self.created_usernames = []
+        self.created_usernames = ["Tom1", "Tom2", "Tom3", "Tom4"]
+        self.created_users = ["Tom1", "Tom2", "Tom3", "Tom4"]
         self.lock_indices = {
             "create_account": 0,
             "get_account": 1,
             "update_account": 2,
             "get_auth": 3,
-            "delete_auth": 4,
+            "update_auth": 4,
             "post_auth": 5,
             "get_statistics": 6,
             "update_statistics": 7,
@@ -116,11 +117,27 @@ class AccountServiceTasks(SequentialTaskSet):
     def _generate_unique_username(self):
         while True:
             username = f"{random.randint(0, 999999):06}"
-            self.created_usernames.append(username)
-            return username
+            if username not in self.created_usernames:
+                self.created_usernames.append(username)
+                return username
 
     def _generate_payload(self):
         username = self._generate_unique_username()
+        payload = {
+            "username": username,
+            "password": "1234",
+        }
+        return payload
+
+    def _generate_unique_users(self):
+        while True:
+            username = f"{random.randint(0, 999999):06}"
+            if username not in self.created_users:
+                self.created_users.append(username)
+                return username
+
+    def _generate_create_user_payload(self):
+        username = self._generate_unique_users()
         payload = {
             "username": username,
             "password": "1234",
@@ -154,15 +171,15 @@ class AccountServiceTasks(SequentialTaskSet):
     @task
     def execute_tasks_in_sequence(self):
         self.create_account()
-        self.update_account()
         self.get_account()
+        self.update_account()
         self.update_statistics()
         self.get_statistics()
         self.update_recipient()
         self.get_recipient()
         self.create_user()
         self.get_users()
-        self.delete_user()
+        self.update_user()
 
     def _increment_request_count(self, request_type):
         with self.locks[self.lock_indices[request_type]]:
@@ -177,6 +194,8 @@ class AccountServiceTasks(SequentialTaskSet):
             response = self.make_request("/accounts/", method="POST", payload=payload, port=6000)
             if response and response.status_code != 200:
                 logging.error(f"Failed to create account: {response.status_code} {response.text}")
+            else:
+                self.created_usernames.append(payload["username"])  # Ensure usernames are added
 
     def update_account(self):
         if self._increment_request_count("update_account"):
@@ -186,25 +205,9 @@ class AccountServiceTasks(SequentialTaskSet):
             self.make_request(f"/accounts/{username}", method="PUT", payload=payload, port=6000)
 
     def get_account(self):
-        if self._increment_request_count("get_account") and self.created_usernames:
+        if self._increment_request_count("get_account"):
             username = random.choice(self.created_usernames)
             self.make_request(f"/accounts/{username}", method="GET", port=6000)
-
-    def update_statistics(self):
-        if self._increment_request_count("update_statistics") and self.created_usernames:
-            username = random.choice(self.created_usernames)
-            payload = self.generate_update_statistics_payload()
-            self.make_request(f"/statistics/{username}", method="PUT", payload=payload, port=7000)
-
-    def get_statistics(self):
-        if self._increment_request_count("get_statistics") and self.created_usernames:
-            username = random.choice(self.created_usernames)
-            self.make_request(f"/statistics/{username}", method="GET", port=7000)
-
-    def get_recipient(self):
-        if self._increment_request_count("get_recipient") and self.created_usernames:
-            username = random.choice(self.created_usernames)
-            self.make_request(f"/recipients/{username}", method="GET", port=8083)
 
     def update_recipient(self):
         if self._increment_request_count("update_recipient"):
@@ -212,26 +215,35 @@ class AccountServiceTasks(SequentialTaskSet):
             payload = self.generate_update_recipient_payload()
             self.make_request(f"/recipients/{username}", method="PUT", payload=payload, port=8083)
 
+    def get_recipient(self):
+        if self._increment_request_count("get_recipient"):
+            username = random.choice(self.created_usernames)
+            self.make_request(f"/recipients/{username}", method="GET", port=8083)
+
+    def update_statistics(self):
+        if self._increment_request_count("update_statistics"):
+            username = random.choice(self.created_usernames)
+            payload = self.generate_update_statistics_payload()
+            self.make_request(f"/statistics/{username}", method="PUT", payload=payload, port=7000)
+
+    def get_statistics(self):
+        if self._increment_request_count("get_statistics"):
+            username = random.choice(self.created_usernames)
+            self.make_request(f"/statistics/{username}", method="GET", port=7000)
+
     def create_user(self):
         if self._increment_request_count("post_auth"):
-            payload = self._generate_payload()
+            payload = self._generate_create_user_payload()
             self.make_request("/users", method="POST", payload=payload, port=5000)
 
     def get_users(self):
         if self._increment_request_count("get_auth"):
             self.make_request("/users", method="GET", port=5000)
 
-    def delete_user(self):
-        if self._increment_request_count("delete_auth"):
-            username = random.choice(self.created_usernames)
-            payload = {
-                "username": username,
-                "password": "1234",
-            }
-            response = self.make_request("/users", method="DELETE", payload=payload, port=5000)
-            self.created_usernames.remove(username)
-            if response.status_code != 200:
-                logging.error(f"Failed to delete account: {response.status_code} {response.text}")
+    def update_user(self):
+        if self._increment_request_count("update_auth"):
+            payload = self._generate_create_user_payload()
+            self.make_request("/users", method="PUT", payload=payload, port=5000)
 
 
 class WebsiteUser(HttpUser):
@@ -241,7 +253,7 @@ class WebsiteUser(HttpUser):
                       "get_account": 0,
                       "update_account": 0,
                       "get_auth": 0,
-                      "delete_auth": 0,
+                      "update_auth": 0,
                       "post_auth": 0,
                       "get_statistics": 0,
                       "update_statistics": 0,
@@ -260,7 +272,7 @@ class WebsiteUser(HttpUser):
             "get_account": FREQUENCY_MAPPING.get(self.frequency_level, 8),
             "update_account": FREQUENCY_MAPPING.get(self.frequency_level, 8),
             "get_auth": FREQUENCY_MAPPING.get(self.frequency_level, 8),
-            "delete_auth": FREQUENCY_MAPPING.get(self.frequency_level, 8),
+            "update_auth": FREQUENCY_MAPPING.get(self.frequency_level, 8),
             "post_auth": FREQUENCY_MAPPING.get(self.frequency_level, 8),
             "get_statistics": FREQUENCY_MAPPING.get(self.frequency_level, 8),
             "update_statistics": FREQUENCY_MAPPING.get(self.frequency_level, 8),
@@ -306,7 +318,7 @@ class WebsiteUser(HttpUser):
                             "get_account",
                             "update_account",
                             "get_auth",
-                            "delete_auth",
+                            "update_auth",
                             "post_auth",
                             "get_statistics",
                             "update_statistics",

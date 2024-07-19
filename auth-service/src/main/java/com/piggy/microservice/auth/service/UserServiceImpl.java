@@ -48,4 +48,15 @@ public class UserServiceImpl implements UserService{
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public String updateUser(User user) {
+        if (userRepository.findByUsername(user.getUsername()) != null) {
+            User oldUser = userRepository.findByUsername(user.getUsername());
+            oldUser.setPassword(user.getPassword());
+            oldUser.setUsername(user.getUsername());
+        }
+        else userRepository.save(user);
+        return ("User has been updated:" + user.getUsername());
+    }
+
 }
