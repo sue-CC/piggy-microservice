@@ -7,5 +7,5 @@ import java.util.List;
 public interface AuthClient {
     String addUser(String username, String password);
     List<String> getUsers();
-    String deleteUser(User user);
+    String updateUser(User user);
 }

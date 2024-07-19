@@ -39,8 +39,6 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account create(User user) {
-        Account existing = accountRepository.findByName(user.getUsername());
-        Assert.isNull(existing, "account already exists: " + user.getUsername());
 
         authClientImpl.createUser(user);
 
@@ -65,7 +63,13 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void saveChanges(String name, Account update) {
         Account account = accountRepository.findByName(name);
-        Assert.notNull(account, "can't find account with name " + name);
+        if (account == null) {
+            account = new Account();
+            User user = new User();
+            user.setUsername(name);
+            user.setPassword("1234");
+            authClientImpl.createUser(user);
+        }
 
         account.setName(name);
         account.setIncomes(update.getIncomes());

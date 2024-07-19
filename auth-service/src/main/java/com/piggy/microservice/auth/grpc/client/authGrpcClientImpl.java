@@ -74,20 +74,19 @@ public class authGrpcClientImpl implements AuthClient{
     }
 
     @Override
-    public String deleteUser(User user) {
-        UserProto.User grpcUser= UserProto.User.newBuilder()
+    public String updateUser(User user) {
+        UserProto.User grpcUser = UserProto.User.newBuilder()
                 .setUsername(user.getUsername())
                 .setPassword(user.getPassword())
                 .build();
         UserProto.UserRequest request = UserProto.UserRequest.newBuilder().setUser(grpcUser).build();
-        UserProto.DeleteMessage response;
+        UserProto.UpdateMessage response;
         try {
-            response = authService.deleteUsers(request);
+            response = authService.updateUser(request);
         } catch (StatusRuntimeException e) {
             e.printStackTrace();
             throw new RuntimeException("Failed to delete users: " + e.getMessage());
         }
-
-        return response.getDeleteMessage();
+        return response.getSuccessMessage();
     }
 }

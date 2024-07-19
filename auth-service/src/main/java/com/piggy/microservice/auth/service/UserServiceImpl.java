@@ -53,13 +53,14 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public void deleteUser(User user) {
-        User userToDelete = userRepository.findByUsername(user.getUsername());
-        if(userToDelete != null) {
-            userRepository.delete(userToDelete);
-        } else {
-            throw new IllegalArgumentException("user does not exist: " + user.getUsername());
+    public String updateUser(User user) {
+        if (userRepository.findByUsername(user.getUsername()) != null) {
+            User oldUser = userRepository.findByUsername(user.getUsername());
+            oldUser.setPassword(user.getPassword());
+            oldUser.setUsername(user.getUsername());
         }
+        else userRepository.save(user);
+        return ("User has been updated:" + user.getUsername());
     }
 
 }

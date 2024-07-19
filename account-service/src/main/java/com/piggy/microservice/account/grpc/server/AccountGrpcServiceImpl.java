@@ -36,8 +36,11 @@ public class AccountGrpcServiceImpl extends AccountServiceGrpc.AccountServiceImp
     public void saveCurrentAccount(AccountProto.SaveAccountRequest request, StreamObserver<AccountProto.SuccessMessage> responseObserver) {
         String accountName = request.getAccountName();
         Account account = accountService.findByName(accountName);
+        if (account == null) {
+            account = new Account();
+            account.setName(accountName);
+        }
 
-        // Update the account with the provided incomes, expenses, and saving
         account.setIncomes(request.getIncomesList().stream()
                 .map(this::convertFromGrpcItem)
                 .collect(Collectors.toList()));
@@ -47,15 +50,11 @@ public class AccountGrpcServiceImpl extends AccountServiceGrpc.AccountServiceImp
                 .collect(Collectors.toList()));
 
         account.setSaving(convertFromGrpcSaving(request.getSaving()));
-
-        // Save the updated account
         accountService.saveChanges(accountName, account);
-
         // Create the response
         AccountProto.SuccessMessage response = AccountProto.SuccessMessage.newBuilder()
                 .setSuccessMessage("Account updated successfully.")
                 .build();
-
         // Send the response
         responseObserver.onNext(response);
         responseObserver.onCompleted();
