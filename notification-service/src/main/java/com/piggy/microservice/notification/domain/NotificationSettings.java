@@ -11,7 +11,6 @@ public class NotificationSettings {
 	@NotNull
 	private Frequency frequency;
 
-	private Date lastNotified;
 
 	public Boolean getActive() {
 		return active;
@@ -27,13 +26,5 @@ public class NotificationSettings {
 
 	public void setFrequency(Frequency frequency) {
 		this.frequency = frequency;
-	}
-
-	public Date getLastNotified() {
-		return lastNotified;
-	}
-
-	public void setLastNotified(Date lastNotified) {
-		this.lastNotified = lastNotified;
 	}
 }

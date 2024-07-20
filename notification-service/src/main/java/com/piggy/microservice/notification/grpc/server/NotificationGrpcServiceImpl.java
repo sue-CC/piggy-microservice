@@ -1,6 +1,5 @@
 package com.piggy.microservice.notification.grpc.server;
 
-import com.google.protobuf.Timestamp;
 import com.piggy.microservice.notification.grpc.NotificationProto;
 import com.piggy.microservice.notification.grpc.NotificationServiceGrpc;
 import com.piggy.microservice.notification.domain.Frequency;
@@ -12,7 +11,6 @@ import io.grpc.stub.StreamObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -92,41 +90,27 @@ public class NotificationGrpcServiceImpl extends NotificationServiceGrpc.Notific
     }
 
     private NotificationProto.NotificationType convertToProtobufNotificationType(NotificationType type) {
-        switch (type) {
-            case BACKUP:
-                return NotificationProto.NotificationType.BACKUP;
-            case REMIND:
-                return NotificationProto.NotificationType.REMIND;
+        return switch (type) {
+            case BACKUP -> NotificationProto.NotificationType.BACKUP;
+            case REMIND -> NotificationProto.NotificationType.REMIND;
             // Add other cases if there are more types
-            default:
-                return NotificationProto.NotificationType.BACKUP;
-        }
+            default -> NotificationProto.NotificationType.BACKUP;
+        };
     }
 
     private NotificationType convertToDomainNotificationType(NotificationProto.NotificationType protoType) {
-        switch (protoType) {
-            case BACKUP:
-                return NotificationType.BACKUP;
-            case REMIND:
-                return NotificationType.REMIND;
+        return switch (protoType) {
+            case BACKUP -> NotificationType.BACKUP;
+            case REMIND -> NotificationType.REMIND;
             // Add other cases if there are more types
-            default:
-                return NotificationType.BACKUP;
-        }
+            default -> NotificationType.BACKUP;
+        };
     }
 
     private NotificationProto.NotificationSettings convertToProtobufNotificationSettings(NotificationSettings settings) {
         NotificationProto.NotificationSettings.Builder builder = NotificationProto.NotificationSettings.newBuilder()
                 .setActive(settings.getActive())
                 .setFrequency(convertToProtobufFrequency(settings.getFrequency()));
-
-        if (settings.getLastNotified() != null) {
-            Timestamp timestamp = Timestamp.newBuilder()
-                    .setSeconds(settings.getLastNotified().getTime() / 1000)
-                    .setNanos((int) ((settings.getLastNotified().getTime() % 1000) * 1000000))
-                    .build();
-            builder.setLastNotified(timestamp);
-        }
 
         return builder.build();
     }
@@ -135,12 +119,6 @@ public class NotificationGrpcServiceImpl extends NotificationServiceGrpc.Notific
         NotificationSettings settings = new NotificationSettings();
         settings.setActive(protoSettings.getActive());
         settings.setFrequency(convertToDomainFrequency(protoSettings.getFrequency()));
-
-        if (protoSettings.hasLastNotified()) {
-            Timestamp timestamp = protoSettings.getLastNotified();
-            Date lastNotified = new Date(timestamp.getSeconds() * 1000 + timestamp.getNanos() / 1000000);
-            settings.setLastNotified(lastNotified);
-        }
 
         return settings;
     }

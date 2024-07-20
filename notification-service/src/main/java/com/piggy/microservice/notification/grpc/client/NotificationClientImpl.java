@@ -41,7 +41,7 @@ public class NotificationClientImpl implements NotificationClient {
     }
 
     @Override
-    public Recipient getNotificationSetting(String name) {
+    public Recipient getRecipient(String name) {
         NotificationProto.GetRecipientRequest request = NotificationProto.GetRecipientRequest.newBuilder()
                 .setName(name)
                 .build();
@@ -58,7 +58,7 @@ public class NotificationClientImpl implements NotificationClient {
     }
 
     @Override
-    public Recipient updateNotificationSetting(String name, Recipient recipient) {
+    public Recipient updateRecipient(String name, Recipient recipient) {
         NotificationProto.Recipient protoRecipient = convertToProtobufRecipient(recipient);
 
         NotificationProto.UpdateRecipientRequest request = NotificationProto.UpdateRecipientRequest.newBuilder()
@@ -138,14 +138,6 @@ public class NotificationClientImpl implements NotificationClient {
                 .setActive(settings.getActive())
                 .setFrequency(convertToProtobufFrequency(settings.getFrequency()));
 
-        if (settings.getLastNotified() != null) {
-            Timestamp timestamp = Timestamp.newBuilder()
-                    .setSeconds(settings.getLastNotified().getTime() / 1000)
-                    .setNanos((int) ((settings.getLastNotified().getTime() % 1000) * 1000000))
-                    .build();
-            builder.setLastNotified(timestamp);
-        }
-
         return builder.build();
     }
 
@@ -153,12 +145,6 @@ public class NotificationClientImpl implements NotificationClient {
         NotificationSettings settings = new NotificationSettings();
         settings.setActive(protoSettings.getActive());
         settings.setFrequency(convertToDomainFrequency(protoSettings.getFrequency()));
-
-        if (protoSettings.hasLastNotified()) {
-            Timestamp timestamp = protoSettings.getLastNotified();
-            Date lastNotified = new Date(timestamp.getSeconds() * 1000 + timestamp.getNanos() / 1000000);
-            settings.setLastNotified(lastNotified);
-        }
 
         return settings;
     }

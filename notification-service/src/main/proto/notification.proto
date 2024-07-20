@@ -6,8 +6,6 @@ option java_package = "com.piggy.microservice.notification.grpc";
 option java_outer_classname = "NotificationProto";
 option java_multiple_files = false;
 
-import "google/protobuf/timestamp.proto";
-
 service NotificationService {
   rpc GetRecipient(GetRecipientRequest) returns (RecipientResponse);
   rpc UpdateRecipient(UpdateRecipientRequest) returns (RecipientResponse);
@@ -30,7 +28,6 @@ enum NotificationType {
 message NotificationSettings {
   bool active = 1;
   Frequency frequency = 2;
-  google.protobuf.Timestamp lastNotified = 3; // Use Timestamp for Date
 }
 
 // Define the NotificationEntry message to represent map entries.
