@@ -1,0 +1,11 @@
+Task,Count
+create_account,0
+get_account,0
+update_account,0
+get_auth,0
+update_auth,0
+post_auth,0
+get_statistics,0
+update_statistics,0
+get_recipient,0
+update_recipient,0
