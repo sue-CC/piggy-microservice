@@ -1,4 +1,4 @@
-FROM openjdk:17-oracle
+FROM openjdk:22-jdk
 MAINTAINER Alexander Lukyanchikov <sqshq@sqshq.com>
 
 ADD ./target/registry-0.0.1-SNAPSHOT.jar /app/
