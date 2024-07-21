@@ -1,4 +1,4 @@
-FROM openjdk:22-jdk
+FROM openjdk:17-jdk-alpine
 MAINTAINER Alexander Lukyanchikov <sqshq@sqshq.com>
 
 ADD ./target/auth-service-0.0.1-SNAPSHOT.jar /app/
