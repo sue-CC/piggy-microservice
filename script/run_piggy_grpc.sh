@@ -2,12 +2,12 @@
 
 # List of file names without extensions
 files=("low_small_grpc" "medium_small_grpc" "high_small_grpc"
-       "low_medium_grpc" "medium_medium_grpc" "medium_medium_grpc"
-       "low_high_grpc" "medium_high_grpc" "medium_high_grpc"
+       "low_medium_grpc" "medium_medium_grpc" "high_medium_grpc"
+       "low_large_grpc" "medium_large_grpc" "high_large_grpc"
         )
 
 # Number of repetitions
-repeat_count=3
+repeat_count=1
 
 ## MongoDB details
 #mongo_host="http://145.108.225.14"
@@ -70,7 +70,7 @@ for ((i=1; i<=repeat_count; i++)); do
     echo "Repetition $i completed"
 
     # Optional: wait time (in seconds) after each repetition
-    sleep 30
+    sleep 10
 done
 
 echo "All operations are complete."
