@@ -1,6 +1,7 @@
 import os
 import logging
 import random
+import secrets
 import time
 import csv
 from locust import HttpUser, SequentialTaskSet, task, between, events
@@ -13,8 +14,11 @@ FREQUENCY_LEVEL = os.getenv('FREQUENCY_LEVEL', 'low')
 SIZE_LEVEL = os.getenv('SIZE_LEVEL', 'small')
 
 # Set mappings
-FREQUENCY_MAPPING = {'low': 8, 'medium': 80, 'high': 800}
+FREQUENCY_MAPPING = {'low': 4, 'medium': 40, 'high': 400}
 SIZE_MAPPING = {'small': 50, 'medium': 1000, 'large': 500000}
+
+global_max_requests = FREQUENCY_MAPPING[FREQUENCY_LEVEL]
+payload_size = SIZE_MAPPING[SIZE_LEVEL]
 
 max_requests = {"create_account": 800,
                 "get_account": 800,
@@ -27,40 +31,27 @@ max_requests = {"create_account": 800,
                 "get_recipient": 800,
                 "update_recipient": 800
                 }
-total_requests = {"create_account": 0,
-                  "get_account": 0,
-                  "update_account": 0,
-                  "get_auth": 0,
-                  "update_auth": 0,
-                  "post_auth": 0,
-                  "get_statistics": 0,
-                  "update_statistics": 0,
-                  "get_recipient": 0,
-                  "update_recipient": 0
-                  }
-# Global maximum requests across all users
-global_max_requests = 8
+total_requests = {name: 0 for name in max_requests.keys()}
 
 
+
+
+
+
+    
 class AccountServiceTasks(SequentialTaskSet):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.locks = [Lock() for _ in range(10)]
-        self.created_usernames = ["Tom1", "Tom2", "Tom3", "Tom4"]
-        self.created_users = ["Tom1", "Tom2", "Tom3", "Tom4"]
-        self.lock_indices = {
-            "create_account": 0,
-            "get_account": 1,
-            "update_account": 2,
-            "get_auth": 3,
-            "update_auth": 4,
-            "post_auth": 5,
-            "get_statistics": 6,
-            "update_statistics": 7,
-            "get_recipient": 8,
-            "update_recipient": 9,
-        }  # Mapping for lock indices
+        self.request_counts = None
+        self.locks = {name: Lock() for name in [
+            "create_account", "get_account", "update_account",
+            "get_auth", "update_auth", "post_auth",
+            "get_statistics", "update_statistics",
+            "get_recipient", "update_recipient"
+        ]}
+        self.created_usernames = ['Tom111']
+        self.created_users = ['Tom111']
+        self.create_recipients = ['Tom111']
 
     @staticmethod
     def generate_update_account_payload():
@@ -113,6 +104,13 @@ class AccountServiceTasks(SequentialTaskSet):
             }
         }
         return payload
+    
+    def _increment_request_count(self, task_name):
+        with self.locks[task_name]:
+            if total_requests[task_name] < global_max_requests:
+                total_requests[task_name] += 1
+                return True
+            return False
 
     def _generate_unique_username(self):
         while True:
@@ -146,7 +144,7 @@ class AccountServiceTasks(SequentialTaskSet):
 
     def make_request(self, endpoint, method="GET", payload=None, port=8080):
         try:
-            url = f"http://0.0.0.0:{port}{endpoint}"
+            url = f"http://145.108.225.14:{port}{endpoint}"
             if method == "GET":
                 response = self.client.get(url)
             elif method == "POST":
@@ -178,19 +176,19 @@ class AccountServiceTasks(SequentialTaskSet):
         self.update_recipient()
         self.get_recipient()
         self.create_user()
-        self.get_users()
         self.update_user()
 
-    def _increment_request_count(self, request_type):
-        with self.locks[self.lock_indices[request_type]]:
-            if total_requests[request_type] < global_max_requests:
-                total_requests[request_type] += 1
-                return True
-            return False
-
     def create_account(self):
-        if self._increment_request_count("create_account"):
-            payload = self._generate_payload()
+        self.set_host_for_task("account")
+        with self.locks["create_account"]:
+            if total_requests["create_account"] < global_max_requests*2:
+                total_requests["create_account"] += 1
+            username = f"{random.randint(0, 999999):06}"
+            password = secrets.token_bytes(20).hex()
+            payload = {
+                "username": username,
+            "password": password,
+            }
             response = self.make_request("/accounts/", method="POST", payload=payload, port=6000)
             if response and response.status_code != 200:
                 logging.error(f"Failed to create account: {response.status_code} {response.text}")
@@ -267,22 +265,23 @@ class WebsiteUser(HttpUser):
         super().__init__(*args, **kwargs)
         self.stop_timer = None
         self.results = []
-        self.max_requests = {
-            "create_account": FREQUENCY_MAPPING.get(self.frequency_level, 8),
-            "get_account": FREQUENCY_MAPPING.get(self.frequency_level, 8),
-            "update_account": FREQUENCY_MAPPING.get(self.frequency_level, 8),
-            "get_auth": FREQUENCY_MAPPING.get(self.frequency_level, 8),
-            "update_auth": FREQUENCY_MAPPING.get(self.frequency_level, 8),
-            "post_auth": FREQUENCY_MAPPING.get(self.frequency_level, 8),
-            "get_statistics": FREQUENCY_MAPPING.get(self.frequency_level, 8),
-            "update_statistics": FREQUENCY_MAPPING.get(self.frequency_level, 8),
-            "get_recipient": FREQUENCY_MAPPING.get(self.frequency_level, 8),
-            "update_recipient": FREQUENCY_MAPPING.get(self.frequency_level, 8),
-        }
+        # self.max_requests = {
+        #     "create_account": FREQUENCY_MAPPING.get(self.frequency_level, 8),
+        #     "get_account": FREQUENCY_MAPPING.get(self.frequency_level, 8),
+        #     "update_account": FREQUENCY_MAPPING.get(self.frequency_level, 8),
+        #     "get_auth": FREQUENCY_MAPPING.get(self.frequency_level, 8),
+        #     "update_auth": FREQUENCY_MAPPING.get(self.frequency_level, 8),
+        #     "post_auth": FREQUENCY_MAPPING.get(self.frequency_level, 8),
+        #     "get_statistics": FREQUENCY_MAPPING.get(self.frequency_level, 8),
+        #     "update_statistics": FREQUENCY_MAPPING.get(self.frequency_level, 8),
+        #     "get_recipient": FREQUENCY_MAPPING.get(self.frequency_level, 8),
+        #     "update_recipient": FREQUENCY_MAPPING.get(self.frequency_level, 8),
+        # }
 
     def on_start(self):
         self.client.verify = False
         self.results = []
+        self.request_size = 0
         self.start_time = time.time()
         self.stop_timer = Timer(120, self.stop_user)
         self.stop_timer.start()
@@ -292,18 +291,12 @@ class WebsiteUser(HttpUser):
         if self.stop_timer and self.stop_timer.is_alive():
             self.stop_timer.cancel()
             self.stop_timer.join()
-        self.export_results_to_csv()
 
     def stop_user(self):
         self.environment.runner.quit()
         logging.info("Test stopped after 2 minutes")
 
-    def export_results_to_csv(self):
-        with open('low_small_rest.csv', mode='w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(['Request Name', 'Response Time (ms)', 'Response Code', 'Frequency Level'])
-            for result in self.results:
-                writer.writerow(result)
+
 
     def record_result(self, request_name, response_time, response_code):
         self.results.append([request_name, response_time, response_code, self.frequency_level])
@@ -328,10 +321,3 @@ class WebsiteUser(HttpUser):
             if total_requests[request_name] >= global_max_requests:
                 self.stop()
                 logging.info(f"Global limit reached for {request_name} requests. Stopping test.")
-
-
-if __name__ == "__main__":
-    import sys
-
-    sys.argv = [sys.argv[0], "--host", "http://localhost:8080"]
-    WebsiteUser().run()
