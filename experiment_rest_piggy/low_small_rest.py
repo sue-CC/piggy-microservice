@@ -1,20 +1,23 @@
+from locust import HttpUser, SequentialTaskSet, task, between, events
 import os
 import logging
 import random
+import secrets
 import time
-import csv
-from locust import HttpUser, SequentialTaskSet, task, between, events
 from threading import Lock, Timer
 
 logging.basicConfig(level=logging.INFO)
 
 # Define environment variables
-FREQUENCY_LEVEL = os.getenv('FREQUENCY_LEVEL', 'medium')
+FREQUENCY_LEVEL = os.getenv('FREQUENCY_LEVEL', 'low')
 SIZE_LEVEL = os.getenv('SIZE_LEVEL', 'small')
 
 # Set mappings
 FREQUENCY_MAPPING = {'low': 8, 'medium': 80, 'high': 800}
 SIZE_MAPPING = {'small': 50, 'medium': 1000, 'large': 500000}
+
+global_max_requests = FREQUENCY_MAPPING[FREQUENCY_LEVEL]
+payload_size = SIZE_MAPPING[SIZE_LEVEL]
 
 max_requests = {"create_account": 800,
                 "get_account": 800,
@@ -27,50 +30,46 @@ max_requests = {"create_account": 800,
                 "get_recipient": 800,
                 "update_recipient": 800
                 }
-total_requests = {"create_account": 0,
-                  "get_account": 0,
-                  "update_account": 0,
-                  "get_auth": 0,
-                  "update_auth": 0,
-                  "post_auth": 0,
-                  "get_statistics": 0,
-                  "update_statistics": 0,
-                  "get_recipient": 0,
-                  "update_recipient": 0
-                  }
-# Global maximum requests across all users
-global_max_requests = 800
+total_requests = {name: 0 for name in max_requests.keys()}
 
 
 class AccountServiceTasks(SequentialTaskSet):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.locks = [Lock() for _ in range(10)]
-        self.created_usernames = []
-        self.created_users = []
-        self.lock_indices = {
-            "create_account": 0,
-            "get_account": 1,
-            "update_account": 2,
-            "get_auth": 3,
-            "update_auth": 4,
-            "post_auth": 5,
-            "get_statistics": 6,
-            "update_statistics": 7,
-            "get_recipient": 8,
-            "update_recipient": 9,
-        }  # Mapping for lock indices
+        self.request_counts = None
+        self.locks = {name: Lock() for name in [
+            "create_account", "get_account", "update_account",
+            "get_auth", "update_auth", "post_auth",
+            "get_statistics", "update_statistics",
+            "get_recipient", "update_recipient"
+        ]}
+        self.created_usernames = ['Tom111']
+        self.created_users = ['Tom111']
+        self.create_recipients = ['Tom111']
 
     @staticmethod
     def generate_update_account_payload():
         payload = {
-            "incomes": [],
-            "expenses": [],
+            "incomes": [
+                {
+                    "title": "Salary",
+                    "amount": "0",
+                    "currency": "EUR",
+                    "period": "MONTH"
+                }
+            ],
+            "expenses": [
+                {
+                    "title": "Rent",
+                    "amount": "20",
+                    "currency": "EUR",
+                    "period": "MONTH"
+                }
+            ],
             "saving": {
-                "amount": 0,
+                "amount": "30",
                 "currency": "EUR",
-                "interest": 0,
+                "interest": "2.5",
                 "deposit": "true",
                 "capitalization": "false"
             }
@@ -81,13 +80,25 @@ class AccountServiceTasks(SequentialTaskSet):
     def generate_update_statistics_payload():
         payload = {
             "incomes": [
+                {
+                    "title": "Rent",
+                    "amount": "1",
+                    "currency": "EUR",
+                    "period": "MONTH"
+                }
             ],
             "expenses": [
+                {
+                    "title": "Rent",
+                    "amount": "1",
+                    "currency": "EUR",
+                    "period": "MONTH"
+                }
             ],
             "saving": {
-                "amount": 0,
+                "amount": "2",
                 "currency": "USD",
-                "interest": 0,
+                "interest": "2.5",
                 "deposit": "true",
                 "capitalization": "false"
             }
@@ -95,24 +106,29 @@ class AccountServiceTasks(SequentialTaskSet):
         return payload
 
     @staticmethod
-    def generate_update_recipient_payload():
+    def generate_update_recipient_payload(accountName):
         payload = {
-            "accountName": "",
-            "email": "",
+            "accountName": accountName,
+            "email": "1234@gmail.com",
             "scheduledNotifications": {
                 "BACKUP": {
                     "active": "true",
                     "frequency": "HIGH",
-                    "lastNotified": ""
                 },
                 "REMIND": {
                     "active": "false",
                     "frequency": "LOW",
-                    "lastNotified": ""
                 }
             }
         }
         return payload
+
+    def _increment_request_count(self, task_name):
+        with self.locks[task_name]:
+            if total_requests[task_name] < global_max_requests:
+                total_requests[task_name] += 1
+                return True
+            return False
 
     def _generate_unique_username(self):
         while True:
@@ -144,9 +160,16 @@ class AccountServiceTasks(SequentialTaskSet):
         }
         return payload
 
+    def _generate_unique_recipients(self):
+        while True:
+            username = f"{random.randint(0, 999999):06}"
+            if username not in self.create_recipients:
+                self.create_recipients.append(username)
+                return username
+
     def make_request(self, endpoint, method="GET", payload=None, port=8080):
         try:
-            url = f"http://0.0.0.0:{port}{endpoint}"
+            url = f"http://145.108.225.14:{port}{endpoint}"
             if method == "GET":
                 response = self.client.get(url)
             elif method == "POST":
@@ -178,90 +201,85 @@ class AccountServiceTasks(SequentialTaskSet):
         self.update_recipient()
         self.get_recipient()
         self.create_user()
-        self.get_users()
         self.update_user()
 
-    def _increment_request_count(self, request_type):
-        with self.locks[self.lock_indices[request_type]]:
-            if total_requests[request_type] < global_max_requests:
-                total_requests[request_type] += 1
-                return True
-            return False
-
     def create_account(self):
-        if self._increment_request_count("create_account"):
-            payload = self._generate_payload()
-            response = self.make_request("/accounts/", method="POST", payload=payload, port=6000)
-            if response and response.status_code != 200:
-                logging.error(f"Failed to create account: {response.status_code} {response.text}")
+        with self.locks["create_account"]:
+            if total_requests["create_account"] < global_max_requests * 2:
+                total_requests["create_account"] += 1
+                username = f"{random.randint(0, 999999):06}"
+                password = secrets.token_bytes(20).hex()
+                payload = {
+                    "username": username,
+                    "password": password,
+                }
+                response = self.make_request("/accounts/", method="POST", payload=payload, port=6000)
+                if response and response.status_code != 200:
+                    logging.error(f"Failed to create account: {response.status_code} {response.text}")
+                else:
+                    self.created_usernames.append(payload["username"])  # Ensure usernames are added
 
     def update_account(self):
         if self._increment_request_count("update_account"):
             username = f"{random.randint(0, 999999):06}"
-            # self.created_usernames.append(username)
+            self.created_usernames.append(username)
             payload = self.generate_update_account_payload()
             self.make_request(f"/accounts/{username}", method="PUT", payload=payload, port=6000)
 
     def get_account(self):
-        if self._increment_request_count("get_account") and self.created_usernames:
-            username = random.choice(self.created_usernames)
+        if self._increment_request_count("get_account"):
+            username = "Tom111"
             self.make_request(f"/accounts/{username}", method="GET", port=6000)
 
+    def update_recipient(self):
+        if self._increment_request_count("update_recipient"):
+            username = self._generate_unique_username()
+            payload = self.generate_update_recipient_payload(username)
+            self.make_request(f"/recipients/{username}", method="PUT", payload=payload, port=8083)
+
+    def get_recipient(self):
+        if self._increment_request_count("get_recipient"):
+            username = random.choice(self.created_usernames)
+            self.make_request(f"/recipients/{username}", method="GET", port=8083)
+
     def update_statistics(self):
-        if self._increment_request_count("update_statistics") and self.created_usernames:
+        if self._increment_request_count("update_statistics"):
             username = random.choice(self.created_usernames)
             payload = self.generate_update_statistics_payload()
             self.make_request(f"/statistics/{username}", method="PUT", payload=payload, port=7000)
 
     def get_statistics(self):
-        if self._increment_request_count("get_statistics") and self.created_usernames:
+        if self._increment_request_count("get_statistics"):
             username = random.choice(self.created_usernames)
             self.make_request(f"/statistics/{username}", method="GET", port=7000)
-
-    def get_recipient(self):
-        if self._increment_request_count("get_recipient") and self.created_usernames:
-            username = random.choice(self.created_usernames)
-            self.make_request(f"/recipients/{username}", method="GET", port=8083)
-
-    def update_recipient(self):
-        if self._increment_request_count("update_recipient"):
-            username = random.choice(self.created_usernames)
-            payload = self.generate_update_recipient_payload()
-            self.make_request(f"/recipients/{username}", method="PUT", payload=payload, port=8083)
 
     def create_user(self):
         if self._increment_request_count("post_auth"):
             payload = self._generate_create_user_payload()
-            self.make_request("/users", method="POST", payload=payload, port=5000)
-
-    def get_users(self):
-        if self._increment_request_count("get_auth"):
-            self.make_request("/users", method="GET", port=5000)
+            self.make_request(f"/auth/", method="POST", payload=payload, port=5000)
 
     def update_user(self):
         if self._increment_request_count("update_auth"):
-            username = random.choice(self.created_users)
-            payload = {
-                "username": username,
-                "password": "1234",
-            }
-            self.make_request("/users", method= "PUT", payload=payload, port=5000)
+            username = "Tom111"
+            payload = self._generate_create_user_payload()
+            self.make_request(f"/auth/{username}", method="PUT", payload=payload, port=5000)
 
 
 class WebsiteUser(HttpUser):
     tasks = [AccountServiceTasks]
     wait_time = between(1, 3)
-    request_counts = {"create_account": 0,
-                      "get_account": 0,
-                      "update_account": 0,
-                      "get_auth": 0,
-                      "update_auth": 0,
-                      "post_auth": 0,
-                      "get_statistics": 0,
-                      "update_statistics": 0,
-                      "get_recipient": 0,
-                      "update_recipient": 0
-                      }
+    request_counts = {
+        "create_account": 0,
+        "get_account": 0,
+        "update_account": 0,
+        "get_auth": 0,
+        "update_auth": 0,
+        "post_auth": 0,
+        "get_statistics": 0,
+        "update_statistics": 0,
+        "get_recipient": 0,
+        "update_recipient": 0
+    }
     start_time = None
     frequency_level = os.getenv('FREQUENCY_LEVEL', 'low')
 
@@ -294,46 +312,21 @@ class WebsiteUser(HttpUser):
         if self.stop_timer and self.stop_timer.is_alive():
             self.stop_timer.cancel()
             self.stop_timer.join()
-        self.export_results_to_csv()
+        events.request.remove_listener(self.on_request_handler)
 
     def stop_user(self):
         self.environment.runner.quit()
         logging.info("Test stopped after 2 minutes")
 
-    def export_results_to_csv(self):
-        with open('low_small_rest.csv', mode='w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(['Request Name', 'Response Time (ms)', 'Response Code', 'Frequency Level'])
-            for result in self.results:
-                writer.writerow(result)
-
-    def record_result(self, request_name, response_time, response_code):
-        self.results.append([request_name, response_time, response_code, self.frequency_level])
+    def record_result(self, request_name, response_time, response_code, request_size):
+        self.results.append([request_name, response_time, response_code, self.frequency_level, request_size])
         self.request_counts[request_name] += 1
         if self.request_counts[request_name] >= self.max_requests[request_name]:
             self.stop()
-            logging.info(f"All {request_name} requests completed. Stopping test.")
 
-    def on_request_handler(self, request_type, name, response_time, response_length, response, **kwargs):
+    def on_request_handler(self, request_type, name, response_time, request_size, response, **kwargs):
         request_name = name.split("/")[-1]
-        if request_name in ["create_account",
-                            "get_account",
-                            "update_account",
-                            "get_auth",
-                            "update_auth",
-                            "post_auth",
-                            "get_statistics",
-                            "update_statistics",
-                            "get_recipient",
-                            "update_recipient"]:
-            self.record_result(request_name, response_time, response.status_code)
+        if request_name in self.request_counts:
+            self.record_result(request_name, response_time, response.status_code, request_size)
             if total_requests[request_name] >= global_max_requests:
                 self.stop()
-                logging.info(f"Global limit reached for {request_name} requests. Stopping test.")
-
-
-if __name__ == "__main__":
-    import sys
-
-    sys.argv = [sys.argv[0], "--host", "http://localhost:8080"]
-    WebsiteUser().run()

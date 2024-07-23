@@ -301,7 +301,7 @@ class WebsiteUser(HttpUser):
         logging.info("Test stopped after 2 minutes")
 
     def export_results_to_csv(self):
-        with open('low_small_rest.csv', mode='w', newline='') as file:
+        with open('../locustfiles/low_small_rest.csv', mode='w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(['Request Name', 'Response Time (ms)', 'Response Code', 'Frequency Level'])
             for result in self.results:
