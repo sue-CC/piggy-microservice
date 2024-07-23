@@ -70,7 +70,7 @@ for ((i=1; i<=repeat_count; i++)); do
     echo "Repetition $i completed"
 
     # Optional: wait time (in seconds) after each repetition
-    sleep 10
+    sleep 30
 done
 
 echo "All operations are complete."

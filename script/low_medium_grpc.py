@@ -19,22 +19,21 @@ FREQUENCY_LEVEL = os.getenv('FREQUENCY_LEVEL', 'low')
 SIZE_LEVEL = os.getenv('SIZE_LEVEL', 'medium')
 
 # Set mappings
-FREQUENCY_MAPPING = {'low': 8, 'medium': 80, 'high': 800}
-SIZE_MAPPING = {'small': 50, 'medium': 1000, 'large': 500000}
-
+FREQUENCY_MAPPING = {'low': 8, 'medium': 80, 'high': 400}
+SIZE_MAPPING = {'small': 50, 'medium': 1000, 'large': 100000}
 global_max_requests = FREQUENCY_MAPPING[FREQUENCY_LEVEL]
 payload_size = SIZE_MAPPING[SIZE_LEVEL]
 
-max_requests = {"create_account": 800,
-                "get_account": 800,
-                "update_account": 800,
-                "get_auth": 800,
-                "update_auth": 800,
-                "post_auth": 800,
-                "get_statistics": 800,
-                "update_statistics": 800,
-                "get_recipient": 800,
-                "update_recipient": 800
+max_requests = {"create_account": 400,
+                "get_account": 400,
+                "update_account": 400,
+                "get_auth": 400,
+                "update_auth": 400,
+                "post_auth": 400,
+                "get_statistics": 400,
+                "update_statistics": 400,
+                "get_recipient": 400,
+                "update_recipient": 400
                 }
 total_requests = {name: 0 for name in max_requests.keys()}
 
@@ -266,7 +265,8 @@ class WebsiteUser(GrpcUser):
     def on_start(self):
         self.results = []
         self.start_time = time.time()
-        self.stop_timer = Timer(150, self.stop_user)
+        self.stop_timer = Timer(120, self.stop_user)
+
         self.stop_timer.start()
 
     def on_stop(self):
@@ -276,5 +276,4 @@ class WebsiteUser(GrpcUser):
 
     def stop_user(self):
         self.environment.runner.quit()
-        logging.info("Test stopped after 2 minutes 30s")
-
+        logging.info("Test stopped after 2 min")

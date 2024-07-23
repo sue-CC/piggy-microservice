@@ -19,22 +19,21 @@ FREQUENCY_LEVEL = os.getenv('FREQUENCY_LEVEL', 'high')
 SIZE_LEVEL = os.getenv('SIZE_LEVEL', 'large')
 
 # Set mappings
-FREQUENCY_MAPPING = {'low': 8, 'medium': 80, 'high': 800}
-SIZE_MAPPING = {'small': 50, 'medium': 1000, 'large': 500000}
-
+FREQUENCY_MAPPING = {'low': 8, 'medium': 80, 'high': 400}
+SIZE_MAPPING = {'small': 50, 'medium': 1000, 'large': 100000}
 global_max_requests = FREQUENCY_MAPPING[FREQUENCY_LEVEL]
 payload_size = SIZE_MAPPING[SIZE_LEVEL]
 
-max_requests = {"create_account": 800,
-                "get_account": 800,
-                "update_account": 800,
-                "get_auth": 800,
-                "update_auth": 800,
-                "post_auth": 800,
-                "get_statistics": 800,
-                "update_statistics": 800,
-                "get_recipient": 800,
-                "update_recipient": 800
+max_requests = {"create_account": 400,
+                "get_account": 400,
+                "update_account": 400,
+                "get_auth": 400,
+                "update_auth": 400,
+                "post_auth": 400,
+                "get_statistics": 400,
+                "update_statistics": 400,
+                "get_recipient": 400,
+                "update_recipient": 400
                 }
 total_requests = {name: 0 for name in max_requests.keys()}
 
@@ -64,7 +63,7 @@ class AccountServiceTasks(grpc_user.GrpcUser):
 
     def _generate_unique_username(self):
         while True:
-            username = f"{random.randint(0, 999999):05}"
+            username = f"{random.randint(0, 999999):06}"
             if username not in self.created_usernames:
                 self.created_usernames.append(username)
                 return username
@@ -78,7 +77,7 @@ class AccountServiceTasks(grpc_user.GrpcUser):
 
     def _generate_unique_recipients(self):
         while True:
-            username = f"{random.randint(0, 999999):05}"
+            username = f"{random.randint(0, 999999):06}"
             if username not in self.create_recipients:
                 self.create_recipients.append(username)
                 return username
@@ -101,7 +100,7 @@ class AccountServiceTasks(grpc_user.GrpcUser):
             if total_requests["create_account"] < global_max_requests*2:
                 total_requests["create_account"] += 1
                 username = f"{random.randint(0, 999999):06}"
-                password = secrets.token_bytes(249994).hex()
+                password = secrets.token_bytes(49994).hex()
                 request = account_pb2.CreateAccountRequest(username=username, password=password)
                 try:
                     self.stub.CreateNewAccount(request)
@@ -113,7 +112,7 @@ class AccountServiceTasks(grpc_user.GrpcUser):
         self.set_host_for_task("account")
         if self._increment_request_count("update_account"):
             username = f"{random.randint(0, 999999):06}"
-            amount = secrets.token_bytes(249975).hex()
+            amount = secrets.token_bytes(49975).hex()
             request = account_pb2.SaveAccountRequest(
                 accountName=username,
                 incomes=[account_pb2.Item(title=amount, amount="2000", currency=account_pb2.USD,
@@ -143,7 +142,7 @@ class AccountServiceTasks(grpc_user.GrpcUser):
         self.set_host_for_task("statistics")
         if self._increment_request_count("update_statistics") and self.created_usernames:
             username = f"{random.randint(0, 999999):06}"
-            amount = secrets.token_bytes(249974).hex()
+            amount = secrets.token_bytes(49974).hex()
             request = account_pb2.UpdateAccountRequest(
                 name=username,
                 account=account_pb2.AccountS(
@@ -185,7 +184,7 @@ class AccountServiceTasks(grpc_user.GrpcUser):
         self.set_host_for_task("recipient")
         if self._increment_request_count("update_recipient") and self.created_usernames:
             username = self._generate_unique_username()
-            amount = secrets.token_bytes(249980).hex()
+            amount = secrets.token_bytes(49980).hex()
             settings_1 = notification_pb2.NotificationSettings(
                 active=True,
                 frequency=notification_pb2.Frequency.HIGH,
@@ -226,7 +225,7 @@ class AccountServiceTasks(grpc_user.GrpcUser):
         self.set_host_for_task("auth")
         if self._increment_request_count("post_auth"):
             username = self._generate_unique_users()
-            password = secrets.token_bytes(249992).hex()
+            password = secrets.token_bytes(49992).hex()
             user = account_pb2.User(username=username, password=password)
             request = account_pb2.UserRequest(user=user)
             try:
@@ -239,7 +238,7 @@ class AccountServiceTasks(grpc_user.GrpcUser):
         self.set_host_for_task("auth")
         if self._increment_request_count("update_auth") and self.created_users:
             username = self._generate_unique_users()
-            password = secrets.token_bytes(249992).hex()
+            password = secrets.token_bytes(49992).hex()
             user = account_pb2.User(username=username, password=password)
             request = account_pb2.UserRequest(user=user)
             try:
@@ -266,7 +265,9 @@ class WebsiteUser(GrpcUser):
     def on_start(self):
         self.results = []
         self.start_time = time.time()
-        self.stop_timer = Timer(150, self.stop_user)
+        self.stop_timer = Timer(120, self.stop_user)
+
+
         self.stop_timer.start()
 
     def on_stop(self):
@@ -276,5 +277,4 @@ class WebsiteUser(GrpcUser):
 
     def stop_user(self):
         self.environment.runner.quit()
-        logging.info("Test stopped after 2 minutes 30s")
-
+        logging.info("Test stopped after 2 min")

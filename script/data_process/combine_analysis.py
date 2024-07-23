@@ -55,3 +55,4 @@ print(anova_results)
 
 # 回归模型
 print(model.summary())
+

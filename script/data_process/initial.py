@@ -122,7 +122,7 @@ for file_type, (frequency_str, size_str) in file_type_info.items():
     frequency = frequency_mapping.get(frequency_str, -1)  # Default to -1 if unknown
     size = size_mapping.get(size_str, -1)  # Default to -1 if unknown
 
-    for i in range(1, 1):  # Assuming there are 10 files per type
+    for i in range(1, 2):  # Assuming there are 10 files per type
         input_file = os.path.join(input_dir, f'{file_type}{i}_stats.csv')
         output_file = os.path.join(output_dir, f'{file_type}{i}.csv')
 
