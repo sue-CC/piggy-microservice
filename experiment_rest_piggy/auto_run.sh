@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # List of file names without extensions
-files=("low_small_rest" "medium_small_rest" "high_small_rest"
-       "low_medium_rest" "medium_medium_rest" "high_medium_rest"
-       "low_large_rest" "medium_large_rest" "high_large_rest"
-        )
+files=("low_small_rest" "medium_small_rest" "high_small_rest")
+#       "low_medium_rest" "medium_medium_rest" "high_medium_rest"
+#       "low_large_rest" "medium_large_rest" "high_large_rest"
+#        )
 
 # Number of repetitions
 repeat_count=1
