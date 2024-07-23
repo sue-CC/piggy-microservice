@@ -1,3 +1,4 @@
+import uuid
 from locust import HttpUser, SequentialTaskSet, task, between, events
 import os
 import logging
@@ -13,8 +14,8 @@ FREQUENCY_LEVEL = os.getenv('FREQUENCY_LEVEL', 'low')
 SIZE_LEVEL = os.getenv('SIZE_LEVEL', 'small')
 
 # Set mappings
-FREQUENCY_MAPPING = {'low': 8, 'medium': 80, 'high': 800}
-SIZE_MAPPING = {'small': 50, 'medium': 1000, 'large': 500000}
+FREQUENCY_MAPPING = {'low': 8, 'medium': 80, 'high': 400}
+SIZE_MAPPING = {'small': 50, 'medium': 1000, 'large': 100000}
 
 global_max_requests = FREQUENCY_MAPPING[FREQUENCY_LEVEL]
 payload_size = SIZE_MAPPING[SIZE_LEVEL]
@@ -170,6 +171,7 @@ class AccountServiceTasks(SequentialTaskSet):
     def make_request(self, endpoint, method="GET", payload=None, port=8080):
         try:
             url = f"http://145.108.225.14:{port}{endpoint}"
+            request_size = len(str(payload).encode('utf-8')) if payload else 0
             if method == "GET":
                 response = self.client.get(url)
             elif method == "POST":
@@ -177,13 +179,24 @@ class AccountServiceTasks(SequentialTaskSet):
             elif method == "PUT":
                 response = self.client.put(url, json=payload)
             elif method == "DELETE":
-                response = self.client.delete(url, json=payload)
+                response = self.client.delete(url)
             else:
                 logging.error(f"Unsupported HTTP method: {method}")
                 return
 
-            # if response.status_code[0] != 2:
-            #     logging.error(f"Failed request: {response.status_code} {response.text}")
+            if response:
+                self.environment.events.request.fire(
+                    request_id = str(uuid.uuid4())
+                    request_type="REST"+method,
+                    name=endpoint+request_id,
+                    response_time=response.elapsed.total_seconds() * 1000,
+                    response_length=request_size,
+                    response=response,
+                    context={},  
+                    exception=None,
+                    start_time=time.time(),
+                    # request_size=request_size
+                )
 
         except Exception as e:
             logging.error(f"Exception during request: {str(e)}")
@@ -268,7 +281,7 @@ class AccountServiceTasks(SequentialTaskSet):
 class WebsiteUser(HttpUser):
     tasks = [AccountServiceTasks]
     wait_time = between(1, 3)
-    request_counts = {
+    request_counts = { name: 0 
         "create_account": 0,
         "get_account": 0,
         "update_account": 0,
@@ -324,7 +337,7 @@ class WebsiteUser(HttpUser):
         if self.request_counts[request_name] >= self.max_requests[request_name]:
             self.stop()
 
-    def on_request_handler(self, request_type, name, response_time, request_size, response, **kwargs):
+    def on_request_handler(self, request_type, name, response_time, response_length, response, context, exception, start_time, request_size, **kwargs):
         request_name = name.split("/")[-1]
         if request_name in self.request_counts:
             self.record_result(request_name, response_time, response.status_code, request_size)
