@@ -192,7 +192,7 @@ class WebsiteUser(RestUser):
     def on_start(self):
         self.results = []
         self.start_time = time.time()
-        self.stop_timer = Timer(120, self.stop_user)
+        self.stop_timer = Timer(150, self.stop_user)
 
         self.stop_timer.start()
 
@@ -203,4 +203,4 @@ class WebsiteUser(RestUser):
 
     def stop_user(self):
         self.environment.runner.quit()
-        logging.info("Test stopped after 2 min")
+        logging.info("Test stopped after 2 min 30s")

@@ -283,7 +283,7 @@ class WebsiteUser(HttpUser):
         self.results = []
         self.request_size = 0
         self.start_time = time.time()
-        self.stop_timer = Timer(120, self.stop_user)
+        self.stop_timer = Timer(150, self.stop_user)
         self.stop_timer.start()
         events.request.add_listener(self.on_request_handler)
 
