@@ -28,6 +28,8 @@ services:
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://registry:8761/eureka/
       SPRING_DATA_MONGODB_URI: mongodb://auth-mongodb:27017/auth-service
+      SPRING_DATA_MONGODB_USERNAME: user
+      SPRING_DATA_MONGODB_PASSWORD: password
     networks:
       - eureka-network
 
@@ -37,6 +39,9 @@ services:
     ports:
       - "27017:27017"
     command: mongod --bind_ip_all
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: user
+      MONGO_INITDB_ROOT_PASSWORD: password
     tmpfs:
       - /data/db
     logging:
@@ -61,6 +66,8 @@ services:
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://registry:8761/eureka/
       SPRING_DATA_MONGODB_URI: mongodb://account-mongodb:27017/account-service
+      SPRING_DATA_MONGODB_USERNAME: user
+      SPRING_DATA_MONGODB_PASSWORD: password
     networks:
       - eureka-network
 
@@ -70,6 +77,9 @@ services:
     ports:
       - "27018:27017"
     command: mongod --bind_ip_all
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: user
+      MONGO_INITDB_ROOT_PASSWORD: password
     tmpfs:
       - /data/db
     logging:
@@ -94,6 +104,8 @@ services:
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://registry:8761/eureka/
       SPRING_DATA_MONGODB_URI: mongodb://statistics-mongodb:27017/statistics-service
+      SPRING_DATA_MONGODB_USERNAME: user
+      SPRING_DATA_MONGODB_PASSWORD: password
     networks:
       - eureka-network
 
@@ -103,6 +115,9 @@ services:
     ports:
       - "27019:27017"
     command: mongod --bind_ip_all
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: user
+      MONGO_INITDB_ROOT_PASSWORD: password
     tmpfs:
       - /data/db
     logging:
@@ -127,6 +142,8 @@ services:
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://registry:8761/eureka/
       SPRING_DATA_MONGODB_URI: mongodb://notification-mongodb:27017/notification-service
+      SPRING_DATA_MONGODB_USERNAME: user
+      SPRING_DATA_MONGODB_PASSWORD: password
     networks:
       - eureka-network
 
@@ -136,6 +153,9 @@ services:
     ports:
       - "27020:27017"
     command: mongod --bind_ip_all
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: user
+      MONGO_INITDB_ROOT_PASSWORD: password
     tmpfs:
       - /data/db
     logging:
