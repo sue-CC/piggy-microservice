@@ -103,7 +103,7 @@ services:
         max-file: "10"
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://registry:8761/eureka/
-      SPRING_DATA_MONGODB_URI: mongodb://user:password@statistics-mongodb:27017/statistics-service?authSource=admin?authSource=admin
+      SPRING_DATA_MONGODB_URI: mongodb://user:password@statistics-mongodb:27017/statistics-service?authSource=admin
       SPRING_DATA_MONGODB_USERNAME: user
       SPRING_DATA_MONGODB_PASSWORD: password
     networks:
