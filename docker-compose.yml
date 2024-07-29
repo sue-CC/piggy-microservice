@@ -27,7 +27,7 @@ services:
         max-file: "10"
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://registry:8761/eureka/
-      SPRING_DATA_MONGODB_URI: mongodb://auth-mongodb:27017/auth-service
+      SPRING_DATA_MONGODB_URI: mongodb://user:password@auth-mongodb:27017/auth-service?authSource=admin
       SPRING_DATA_MONGODB_USERNAME: user
       SPRING_DATA_MONGODB_PASSWORD: password
     networks:
@@ -65,7 +65,7 @@ services:
         max-file: "10"
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://registry:8761/eureka/
-      SPRING_DATA_MONGODB_URI: mongodb://account-mongodb:27017/account-service
+      SPRING_DATA_MONGODB_URI: mongodb://user:password@account-mongodb:27017/account-service?authSource=admin
       SPRING_DATA_MONGODB_USERNAME: user
       SPRING_DATA_MONGODB_PASSWORD: password
     networks:
@@ -103,7 +103,7 @@ services:
         max-file: "10"
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://registry:8761/eureka/
-      SPRING_DATA_MONGODB_URI: mongodb://statistics-mongodb:27017/statistics-service
+      SPRING_DATA_MONGODB_URI: mongodb://user:password@statistics-mongodb:27017/statistics-service?authSource=admin?authSource=admin
       SPRING_DATA_MONGODB_USERNAME: user
       SPRING_DATA_MONGODB_PASSWORD: password
     networks:
@@ -141,7 +141,7 @@ services:
         max-file: "10"
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://registry:8761/eureka/
-      SPRING_DATA_MONGODB_URI: mongodb://notification-mongodb:27017/notification-service
+      SPRING_DATA_MONGODB_URI: mongodb://user:password@notification-mongodb:27017/notification-service?authSource=admin
       SPRING_DATA_MONGODB_USERNAME: user
       SPRING_DATA_MONGODB_PASSWORD: password
     networks:
