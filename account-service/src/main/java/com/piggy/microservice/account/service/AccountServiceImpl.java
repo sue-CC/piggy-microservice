@@ -81,8 +81,7 @@ public class AccountServiceImpl implements AccountService {
         log.info("save changes have been saved: " + account.getName());
 
 
-        String responseMessage = statisticsServiceClient.updateAccountStatistics(name, account);
-        log.info("Statistics service response: " + responseMessage);
+        statisticsServiceClient.updateAccountStatistics(name, account);
     }
 
 
