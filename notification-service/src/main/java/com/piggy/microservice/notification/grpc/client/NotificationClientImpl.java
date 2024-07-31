@@ -1,6 +1,5 @@
 package com.piggy.microservice.notification.grpc.client;
 
-import com.google.protobuf.Timestamp;
 import com.piggy.microservice.notification.grpc.NotificationProto;
 import com.piggy.microservice.notification.grpc.NotificationServiceGrpc;
 import com.piggy.microservice.notification.domain.Frequency;
@@ -14,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
-import java.util.Date;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -73,7 +71,6 @@ public class NotificationClientImpl implements NotificationClient {
             logger.severe("RPC failed: " + e.getMessage());
             return null;
         }
-
         return convertToDomainRecipient(response.getRecipient());
     }
 
@@ -112,25 +109,18 @@ public class NotificationClientImpl implements NotificationClient {
     }
 
     private NotificationProto.NotificationType convertToProtobufNotificationType(NotificationType type) {
-        switch (type) {
-            case BACKUP:
-                return NotificationProto.NotificationType.BACKUP;
-            case REMIND:
-                return NotificationProto.NotificationType.REMIND;
-            default:
-                return NotificationProto.NotificationType.BACKUP;
-        }
+        return switch (type) {
+            case BACKUP -> NotificationProto.NotificationType.BACKUP;
+            case REMIND -> NotificationProto.NotificationType.REMIND;
+        };
     }
 
     private NotificationType convertToDomainNotificationType(NotificationProto.NotificationType protoType) {
-        switch (protoType) {
-            case BACKUP:
-                return NotificationType.BACKUP;
-            case REMIND:
-                return NotificationType.REMIND;
-            default:
-                return NotificationType.BACKUP;
-        }
+        return switch (protoType) {
+            case BACKUP -> NotificationType.BACKUP;
+            case REMIND -> NotificationType.REMIND;
+            default -> NotificationType.BACKUP;
+        };
     }
 
     private NotificationProto.NotificationSettings convertToProtobufNotificationSettings(NotificationSettings settings) {
@@ -150,28 +140,19 @@ public class NotificationClientImpl implements NotificationClient {
     }
 
     private NotificationProto.Frequency convertToProtobufFrequency(Frequency frequency) {
-        switch (frequency) {
-            case LOW:
-                return NotificationProto.Frequency.LOW;
-            case MEDIUM:
-                return NotificationProto.Frequency.MEDIUM;
-            case HIGH:
-                return NotificationProto.Frequency.HIGH;
-            default:
-                return NotificationProto.Frequency.LOW;
-        }
+        return switch (frequency) {
+            case LOW -> NotificationProto.Frequency.LOW;
+            case MEDIUM -> NotificationProto.Frequency.MEDIUM;
+            case HIGH -> NotificationProto.Frequency.HIGH;
+        };
     }
 
     private Frequency convertToDomainFrequency(NotificationProto.Frequency protoFrequency) {
-        switch (protoFrequency) {
-            case LOW:
-                return Frequency.LOW;
-            case MEDIUM:
-                return Frequency.MEDIUM;
-            case HIGH:
-                return Frequency.HIGH;
-            default:
-                return Frequency.LOW;
-        }
+        return switch (protoFrequency) {
+            case LOW -> Frequency.LOW;
+            case MEDIUM -> Frequency.MEDIUM;
+            case HIGH -> Frequency.HIGH;
+            default -> Frequency.LOW;
+        };
     }
 }

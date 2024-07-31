@@ -34,13 +34,8 @@ public class AccountGrpcServiceImpl extends AccountServiceGrpc.AccountServiceImp
 
     @Override
     public void saveCurrentAccount(AccountProto.SaveAccountRequest request, StreamObserver<AccountProto.SuccessMessage> responseObserver) {
-        String accountName = request.getAccountName();
-        Account account = accountService.findByName(accountName);
-        if (account == null) {
-            account = new Account();
-            account.setName(accountName);
-        }
-
+        Account account = new Account();
+        account.setName(request.getAccountName());
         account.setIncomes(request.getIncomesList().stream()
                 .map(this::convertFromGrpcItem)
                 .collect(Collectors.toList()));
@@ -50,7 +45,7 @@ public class AccountGrpcServiceImpl extends AccountServiceGrpc.AccountServiceImp
                 .collect(Collectors.toList()));
 
         account.setSaving(convertFromGrpcSaving(request.getSaving()));
-        accountService.saveChanges(accountName, account);
+        accountService.saveChanges(request.getAccountName(), account);
         // Create the response
         AccountProto.SuccessMessage response = AccountProto.SuccessMessage.newBuilder()
                 .setSuccessMessage("Account updated successfully.")
@@ -118,16 +113,11 @@ public class AccountGrpcServiceImpl extends AccountServiceGrpc.AccountServiceImp
     }
 
     private AccountProto.Currency convertToGrpcCurrency(Currency currency) {
-        switch (currency) {
-            case USD:
-                return AccountProto.Currency.USD;
-            case EUR:
-                return AccountProto.Currency.EUR;
-            case RUB:
-                return AccountProto.Currency.RUB;
-            default:
-                throw new IllegalArgumentException("Unknown currency: " + currency);
-        }
+        return switch (currency) {
+            case USD -> AccountProto.Currency.USD;
+            case EUR -> AccountProto.Currency.EUR;
+            case RUB -> AccountProto.Currency.RUB;
+        };
     }
 
     private Item convertFromGrpcItem(AccountProto.Item grpcItem) {
@@ -150,33 +140,23 @@ public class AccountGrpcServiceImpl extends AccountServiceGrpc.AccountServiceImp
     }
 
     private Currency convertFromGrpcCurrency(AccountProto.Currency grpcCurrency) {
-        switch (grpcCurrency) {
-            case USD:
-                return Currency.USD;
-            case EUR:
-                return Currency.EUR;
-            case RUB:
-                return Currency.RUB;
-            default:
-                throw new IllegalArgumentException("Unknown currency: " + grpcCurrency);
-        }
+        return switch (grpcCurrency) {
+            case USD -> Currency.USD;
+            case EUR -> Currency.EUR;
+            case RUB -> Currency.RUB;
+            default -> throw new IllegalArgumentException("Unknown currency: " + grpcCurrency);
+        };
     }
 
     private TimePeriod convertFromGrpcPeriod(AccountProto.TimePeriod grpcPeriod) {
-        switch (grpcPeriod) {
-            case YEAR:
-                return TimePeriod.YEAR;
-            case QUARTER:
-                return TimePeriod.QUARTER;
-            case MONTH:
-                return TimePeriod.MONTH;
-            case DAY:
-                return TimePeriod.DAY;
-            case HOUR:
-                return TimePeriod.HOUR;
-            default:
-                throw new IllegalArgumentException("Unknown period: " + grpcPeriod);
-        }
+        return switch (grpcPeriod) {
+            case YEAR -> TimePeriod.YEAR;
+            case QUARTER -> TimePeriod.QUARTER;
+            case MONTH -> TimePeriod.MONTH;
+            case DAY -> TimePeriod.DAY;
+            case HOUR -> TimePeriod.HOUR;
+            default -> throw new IllegalArgumentException("Unknown period: " + grpcPeriod);
+        };
     }
 
 }

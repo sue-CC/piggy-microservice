@@ -47,14 +47,7 @@ public class authGrpcClientImpl implements AuthClient{
         UserProto.UserRequest request = UserProto.UserRequest.newBuilder()
                 .setUser(grpcUser)
                 .build();
-
-        UserProto.UserResponse response;
-        try {
-            response = authService.addUser(request);
-        } catch (StatusRuntimeException e) {
-            e.printStackTrace();
-            return "Failed to add user: " + e.getMessage();
-        }
+        UserProto.UserResponse response = authService.addUser(request);
         return response.getMessage();
     }
 

@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
 
@@ -79,7 +78,6 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.save(account);
 
         log.info("save changes have been saved: " + account.getName());
-
 
         statisticsServiceClient.updateAccountStatistics(name, account);
     }

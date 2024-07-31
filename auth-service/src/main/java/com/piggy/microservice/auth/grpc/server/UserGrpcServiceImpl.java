@@ -33,13 +33,8 @@ public class UserGrpcServiceImpl extends UserServiceGrpc.UserServiceImplBase {
         UserProto.UserResponse response = UserProto.UserResponse.newBuilder()
                 .setMessage(responseMessage)
                 .build();
-
-        if (responseMessage.startsWith("User already exists")) {
-            responseObserver.onError(new RuntimeException(responseMessage));
-        } else {
-            responseObserver.onNext(response);
-            responseObserver.onCompleted();
-        }
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
     }
 
     @Override
@@ -66,7 +61,6 @@ public class UserGrpcServiceImpl extends UserServiceGrpc.UserServiceImplBase {
         User user = new User();
         user.setUsername(request.getUser().getUsername());
         user.setPassword(request.getUser().getPassword());
-        userService.updateUser(user);
         String responseMessage = userService.updateUser(user);
         UserProto.UpdateMessage response = UserProto.UpdateMessage.newBuilder()
                 .setSuccessMessage(responseMessage)

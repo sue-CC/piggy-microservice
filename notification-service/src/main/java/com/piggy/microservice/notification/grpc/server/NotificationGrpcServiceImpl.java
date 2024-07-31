@@ -93,8 +93,6 @@ public class NotificationGrpcServiceImpl extends NotificationServiceGrpc.Notific
         return switch (type) {
             case BACKUP -> NotificationProto.NotificationType.BACKUP;
             case REMIND -> NotificationProto.NotificationType.REMIND;
-            // Add other cases if there are more types
-            default -> NotificationProto.NotificationType.BACKUP;
         };
     }
 
@@ -102,7 +100,6 @@ public class NotificationGrpcServiceImpl extends NotificationServiceGrpc.Notific
         return switch (protoType) {
             case BACKUP -> NotificationType.BACKUP;
             case REMIND -> NotificationType.REMIND;
-            // Add other cases if there are more types
             default -> NotificationType.BACKUP;
         };
     }
@@ -124,28 +121,19 @@ public class NotificationGrpcServiceImpl extends NotificationServiceGrpc.Notific
     }
 
     private NotificationProto.Frequency convertToProtobufFrequency(Frequency frequency) {
-        switch (frequency) {
-            case LOW:
-                return NotificationProto.Frequency.LOW;
-            case MEDIUM:
-                return NotificationProto.Frequency.MEDIUM;
-            case HIGH:
-                return NotificationProto.Frequency.HIGH;
-            default:
-                return NotificationProto.Frequency.LOW;
-        }
+        return switch (frequency) {
+            case LOW -> NotificationProto.Frequency.LOW;
+            case MEDIUM -> NotificationProto.Frequency.MEDIUM;
+            case HIGH -> NotificationProto.Frequency.HIGH;
+        };
     }
 
     private Frequency convertToDomainFrequency(NotificationProto.Frequency protoFrequency) {
-        switch (protoFrequency) {
-            case LOW:
-                return LOW;
-            case MEDIUM:
-                return MEDIUM;
-            case HIGH:
-                return HIGH;
-            default:
-                return LOW;
-        }
+        return switch (protoFrequency) {
+            case LOW -> LOW;
+            case MEDIUM -> MEDIUM;
+            case HIGH -> HIGH;
+            default -> LOW;
+        };
     }
 }
