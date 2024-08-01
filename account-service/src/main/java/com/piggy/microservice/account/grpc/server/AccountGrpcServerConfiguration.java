@@ -1,7 +1,8 @@
 package com.piggy.microservice.account.grpc.server;
 
-import com.piggy.microservice.account.clients.authClientImpl;
-import com.piggy.microservice.account.service.AccountServiceImpl;
+import com.piggy.microservice.account.clients.StatisticsClientImpl;
+import com.piggy.microservice.account.clients.AuthClientImpl;
+import com.piggy.microservice.account.repository.AccountRepository;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,17 +16,16 @@ import javax.annotation.PreDestroy;
 @Component
 public class AccountGrpcServerConfiguration {
     private final Server server;
-    private final AccountServiceImpl accountService;
-    private final authClientImpl authServiceClient;
+    private final AccountRepository accountRepository;
+    private final AuthClientImpl authClient;
+    private final StatisticsClientImpl statisticsClient;
 
-
-    public AccountGrpcServerConfiguration(@Value("${account.server.port:9090}")int port, AccountServiceImpl accountService, authClientImpl authServiceClient) {
-        this.accountService = accountService;
-        this.authServiceClient = authServiceClient;
-        System.out.println("AccountService injected: " + (accountService != null));
-        System.out.println("AuthClient injected: " + (authServiceClient != null));
+    public AccountGrpcServerConfiguration(@Value("${account.server.port:9090}")int port, AccountRepository accountRepository, AuthClientImpl authClient, StatisticsClientImpl statisticsClient) {
+        this.accountRepository = accountRepository;
+        this.authClient = authClient;
+        this.statisticsClient = statisticsClient;
         ServerBuilder<?> builder = ServerBuilder.forPort(port);
-        builder.addService(new AccountGrpcServiceImpl(accountService));
+        builder.addService(new AccountGrpcServiceImpl(accountRepository, authClient, statisticsClient));
         this.server = builder.build();
     }
 

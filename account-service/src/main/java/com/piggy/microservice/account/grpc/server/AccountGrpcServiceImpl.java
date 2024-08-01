@@ -1,9 +1,12 @@
 package com.piggy.microservice.account.grpc.server;
 
+import com.piggy.microservice.account.clients.AuthClientImpl;
+import com.piggy.microservice.account.clients.StatisticsClientImpl;
 import com.piggy.microservice.account.domain.*;
 import com.piggy.microservice.account.grpc.AccountProto;
 import com.piggy.microservice.account.grpc.AccountServiceGrpc;
-import com.piggy.microservice.account.service.AccountServiceImpl;
+import com.piggy.microservice.account.grpc.StatisticsProto;
+import com.piggy.microservice.account.repository.AccountRepository;
 import io.grpc.stub.StreamObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,57 +15,88 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
+import static com.piggy.microservice.account.grpc.client.accountGrpcClientImpl.getTimePeriod;
+
 @Service
 public class AccountGrpcServiceImpl extends AccountServiceGrpc.AccountServiceImplBase {
 
-    private final AccountServiceImpl accountService;
+    private final AccountRepository accountRepository;
+    private final AuthClientImpl authService;
+    private final StatisticsClientImpl statisticsService;
 
     @Autowired
-    public AccountGrpcServiceImpl(AccountServiceImpl accountService) {
-        this.accountService = accountService;
+    public AccountGrpcServiceImpl(AccountRepository accountRepository, AuthClientImpl authService, StatisticsClientImpl statisticsService) {
+        this.accountRepository = accountRepository;
+        this.authService = authService;
+        this.statisticsService = statisticsService;
     }
 
     @Override
     public void getAccountByName(AccountProto.GetAccountRequest request, StreamObserver<AccountProto.GetAccountResponse> responseObserver) {
-        Account account = accountService.findByName(request.getName());
-        AccountProto.GetAccountResponse response = AccountProto.GetAccountResponse.newBuilder()
-                .setAccount(convertToGrpcAccount(account))
-                .build();
-        responseObserver.onNext(response);
+        Account account = accountRepository.findByName(request.getName());
+        if (account != null) {
+            AccountProto.GetAccountResponse response = AccountProto.GetAccountResponse.newBuilder()
+                    .setAccount(convertToGrpcAccount(account))
+                    .build();
+            responseObserver.onNext(response);
+        } else {
+            responseObserver.onError(new Exception("Account not found"));
+        }
         responseObserver.onCompleted();
     }
 
     @Override
     public void saveCurrentAccount(AccountProto.SaveAccountRequest request, StreamObserver<AccountProto.SuccessMessage> responseObserver) {
-        Account account = new Account();
-        account.setName(request.getAccountName());
+        String accountName = request.getAccountName();
+        Account account = accountRepository.findByName(accountName);
+        if (account == null) {
+            User user = new User();
+            user.setUsername(accountName);
+            user.setPassword("1234");
+            authService.createUser(user);
+            account = new Account();
+            account.setName(accountName);
+        }
         account.setIncomes(request.getIncomesList().stream()
                 .map(this::convertFromGrpcItem)
                 .collect(Collectors.toList()));
-
         account.setExpenses(request.getExpensesList().stream()
                 .map(this::convertFromGrpcItem)
                 .collect(Collectors.toList()));
-
         account.setSaving(convertFromGrpcSaving(request.getSaving()));
-        accountService.saveChanges(request.getAccountName(), account);
-        // Create the response
+
+        accountRepository.save(account);
+        statisticsService.updateAccountStatistics(accountName, account);
+
         AccountProto.SuccessMessage response = AccountProto.SuccessMessage.newBuilder()
                 .setSuccessMessage("Account updated successfully.")
                 .build();
-        // Send the response
         responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
 
-
     @Override
     public void createNewAccount(AccountProto.CreateAccountRequest request, StreamObserver<AccountProto.GetAccountResponse> responseObserver) {
+        String username = request.getUsername();
         User user = new User();
-        user.setUsername(request.getUsername());
+        user.setUsername(username);
         user.setPassword(request.getPassword());
+        authService.createUser(user);
+
+        Saving saving = new Saving();
+        saving.setAmount(BigDecimal.ZERO);
+        saving.setCurrency(Currency.getDefault());
+        saving.setInterest(BigDecimal.ZERO);
+        saving.setDeposit(false);
+        saving.setCapitalization(false);
+
+        Account account = new Account();
+        account.setName(username);
+        account.setSaving(saving);
+
+        accountRepository.save(account);
         AccountProto.GetAccountResponse response = AccountProto.GetAccountResponse.newBuilder()
-                .setAccount(convertToGrpcAccount(accountService.create(user)))
+                .setAccount(convertToGrpcAccount(account))
                 .build();
         responseObserver.onNext(response);
         responseObserver.onCompleted();
@@ -82,9 +116,8 @@ public class AccountGrpcServiceImpl extends AccountServiceGrpc.AccountServiceImp
                 .build();
     }
 
-
-    private AccountProto.Item convertToGrpcItem(Item item) {
-        return AccountProto.Item.newBuilder()
+    private StatisticsProto.Item convertToGrpcItem(Item item) {
+        return StatisticsProto.Item.newBuilder()
                 .setTitle(item.getTitle())
                 .setAmount(item.getAmount().toPlainString())
                 .setCurrency(convertToGrpcCurrency(item.getCurrency()))
@@ -92,8 +125,8 @@ public class AccountGrpcServiceImpl extends AccountServiceGrpc.AccountServiceImp
                 .build();
     }
 
-    private AccountProto.Saving convertToGrpcSaving(Saving saving) {
-        return AccountProto.Saving.newBuilder()
+    private StatisticsProto.Saving convertToGrpcSaving(Saving saving) {
+        return StatisticsProto.Saving.newBuilder()
                 .setAmount(saving.getAmount().toPlainString())
                 .setCurrency(convertToGrpcCurrency(saving.getCurrency()))
                 .setInterest(saving.getInterest().toPlainString())
@@ -102,25 +135,19 @@ public class AccountGrpcServiceImpl extends AccountServiceGrpc.AccountServiceImp
                 .build();
     }
 
-    private AccountProto.TimePeriod convertToGrpcPeriod(TimePeriod period) {
-        return switch (period) {
-            case YEAR -> AccountProto.TimePeriod.YEAR;
-            case QUARTER -> AccountProto.TimePeriod.QUARTER;
-            case MONTH -> AccountProto.TimePeriod.MONTH;
-            case DAY -> AccountProto.TimePeriod.DAY;
-            case HOUR -> AccountProto.TimePeriod.HOUR;
-        };
+    private StatisticsProto.TimePeriod convertToGrpcPeriod(TimePeriod period) {
+        return getTimePeriod(period);
     }
 
-    private AccountProto.Currency convertToGrpcCurrency(Currency currency) {
+    private StatisticsProto.Currency convertToGrpcCurrency(Currency currency) {
         return switch (currency) {
-            case USD -> AccountProto.Currency.USD;
-            case EUR -> AccountProto.Currency.EUR;
-            case RUB -> AccountProto.Currency.RUB;
+            case USD -> StatisticsProto.Currency.USD;
+            case EUR -> StatisticsProto.Currency.EUR;
+            case RUB -> StatisticsProto.Currency.RUB;
         };
     }
 
-    private Item convertFromGrpcItem(AccountProto.Item grpcItem) {
+    private Item convertFromGrpcItem(StatisticsProto.Item grpcItem) {
         Item item = new Item();
         item.setTitle(grpcItem.getTitle());
         item.setAmount(new BigDecimal(grpcItem.getAmount()));
@@ -129,7 +156,7 @@ public class AccountGrpcServiceImpl extends AccountServiceGrpc.AccountServiceImp
         return item;
     }
 
-    private Saving convertFromGrpcSaving(AccountProto.Saving grpcSaving) {
+    private Saving convertFromGrpcSaving(StatisticsProto.Saving grpcSaving) {
         Saving saving = new Saving();
         saving.setAmount(new BigDecimal(grpcSaving.getAmount()));
         saving.setCurrency(convertFromGrpcCurrency(grpcSaving.getCurrency()));
@@ -139,7 +166,7 @@ public class AccountGrpcServiceImpl extends AccountServiceGrpc.AccountServiceImp
         return saving;
     }
 
-    private Currency convertFromGrpcCurrency(AccountProto.Currency grpcCurrency) {
+    private Currency convertFromGrpcCurrency(StatisticsProto.Currency grpcCurrency) {
         return switch (grpcCurrency) {
             case USD -> Currency.USD;
             case EUR -> Currency.EUR;
@@ -148,15 +175,7 @@ public class AccountGrpcServiceImpl extends AccountServiceGrpc.AccountServiceImp
         };
     }
 
-    private TimePeriod convertFromGrpcPeriod(AccountProto.TimePeriod grpcPeriod) {
-        return switch (grpcPeriod) {
-            case YEAR -> TimePeriod.YEAR;
-            case QUARTER -> TimePeriod.QUARTER;
-            case MONTH -> TimePeriod.MONTH;
-            case DAY -> TimePeriod.DAY;
-            case HOUR -> TimePeriod.HOUR;
-            default -> throw new IllegalArgumentException("Unknown period: " + grpcPeriod);
-        };
+    private TimePeriod convertFromGrpcPeriod(StatisticsProto.TimePeriod grpcPeriod) {
+        return getTimePeriod(grpcPeriod);
     }
-
 }

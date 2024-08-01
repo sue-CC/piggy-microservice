@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,8 +30,6 @@ public class UserServiceImpl implements UserService{
         user.setPassword(hash);
 
         userRepository.save(user);
-
-        log.info("new user has been created: {}", user.getUsername());
 
         return ("New user has been created:" + user.getUsername());
     }

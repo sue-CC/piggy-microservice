@@ -21,6 +21,7 @@ SIZE_LEVEL = os.getenv('SIZE_LEVEL', 'small')
 # Set mappings
 FREQUENCY_MAPPING = {'low': 8, 'medium': 80, 'high': 400}
 SIZE_MAPPING = {'small': 50, 'medium': 1000, 'large': 100000}
+
 global_max_requests = FREQUENCY_MAPPING[FREQUENCY_LEVEL]
 payload_size = SIZE_MAPPING[SIZE_LEVEL]
 
@@ -111,7 +112,7 @@ class AccountServiceTasks(grpc_user.GrpcUser):
     def update_account(self):
         self.set_host_for_task("account")
         if self._increment_request_count("update_account"):
-            username = self._generate_unique_username()
+            username = f"{random.randint(0, 999999):06}"
             request = account_pb2.SaveAccountRequest(
                 accountName=username,
                 incomes=[account_pb2.Item(title="Salary", amount="0", currency=account_pb2.USD,
@@ -181,7 +182,7 @@ class AccountServiceTasks(grpc_user.GrpcUser):
     def update_recipient(self):
         self.set_host_for_task("recipient")
         if self._increment_request_count("update_recipient") and self.created_usernames:
-            username = self._generate_unique_username()
+            username = f"{random.randint(0, 999999):06}"
             settings_1 = notification_pb2.NotificationSettings(
                 active=True,
                 frequency=notification_pb2.Frequency.HIGH,
@@ -209,7 +210,6 @@ class AccountServiceTasks(grpc_user.GrpcUser):
                 name=username,
                 recipient=recipient
             )
-            self.create_recipients.append(username)
             self.stub.UpdateRecipient(request)
 
     def get_recipient(self):
@@ -221,32 +221,29 @@ class AccountServiceTasks(grpc_user.GrpcUser):
     def create_user(self):
         self.set_host_for_task("auth")
         if self._increment_request_count("post_auth"):
-            username = self._generate_unique_users()
+            username = f"{random.randint(0, 999999):06}"
             password = secrets.token_bytes(19).hex()
             user = account_pb2.User(username=username, password=password)
             request = account_pb2.UserRequest(user=user)
             try:
                 self.stub.AddUser(request)
-                self.created_users.append(username)
             except Exception as e:
                 logging.error(f"Failed to create user: {e}")
 
     def update_user(self):
         self.set_host_for_task("auth")
         if self._increment_request_count("update_auth") and self.created_users:
-            username = self._generate_unique_users()
+            username = f"{random.randint(0, 999999):06}"
             password = secrets.token_bytes(19).hex()
             user = account_pb2.User(username=username, password=password)
             request = account_pb2.UserRequest(user=user)
             try:
                 self.stub.UpdateUser(request)
-                self.created_users.append(username)
             except Exception as e:
                 logging.error(f"Failed to create user: {e}")
 
 
 class WebsiteUser(GrpcUser):
-
     tasks = [AccountServiceTasks]
     wait_time = between(1, 3)
     total_requests = {name: 0 for name in max_requests.keys()}

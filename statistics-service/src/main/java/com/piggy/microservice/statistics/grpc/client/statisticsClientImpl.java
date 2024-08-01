@@ -94,7 +94,7 @@ public class statisticsClientImpl implements StatisticsClient {
     @Override
     public String updateAccountStatistics(String accountName, Account account) {
         // Convert domain Account to Protobuf Account
-        StatisticsProto.Account protoAccount = StatisticsProto.Account.newBuilder()
+        StatisticsProto.UpdateAccount protoUpdate = StatisticsProto.UpdateAccount.newBuilder()
                 .addAllIncomes(account.getIncomes().stream().map(item ->
                         StatisticsProto.Item.newBuilder()
                                 .setTitle(item.getTitle())
@@ -124,7 +124,7 @@ public class statisticsClientImpl implements StatisticsClient {
         // Create the gRPC request
         StatisticsProto.UpdateAccountRequest request = StatisticsProto.UpdateAccountRequest.newBuilder()
                 .setName(accountName)
-                .setAccount(protoAccount)
+                .setUpdate(protoUpdate)
                 .build();
 
         // Call the gRPC service and get the response

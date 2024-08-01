@@ -3,7 +3,9 @@ package com.piggy.microservice.account.grpc.client;
 import com.piggy.microservice.account.domain.*;
 import com.piggy.microservice.account.grpc.AccountProto;
 import com.piggy.microservice.account.grpc.AccountServiceGrpc;
+import com.piggy.microservice.account.grpc.StatisticsProto;
 import io.grpc.*;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -93,7 +95,7 @@ public class accountGrpcClientImpl implements AccountClient {
     }
 
 
-    private Item mapToItem(AccountProto.Item grpcItem) {
+    private Item mapToItem(StatisticsProto.Item grpcItem) {
         Item item = new Item();
         item.setTitle(grpcItem.getTitle());
         item.setAmount(new BigDecimal(grpcItem.getAmount()));
@@ -103,7 +105,7 @@ public class accountGrpcClientImpl implements AccountClient {
         return item;
     }
 
-    private Saving mapToSaving(AccountProto.Saving grpcSaving) {
+    private Saving mapToSaving(StatisticsProto.Saving grpcSaving) {
         Saving saving = new Saving();
         saving.setAmount(new BigDecimal(grpcSaving.getAmount()));
         saving.setCurrency(mapToCurrency(grpcSaving.getCurrency()));
@@ -114,7 +116,7 @@ public class accountGrpcClientImpl implements AccountClient {
         return saving;
     }
 
-    private Currency mapToCurrency(AccountProto.Currency grpcCurrency) {
+    private Currency mapToCurrency(StatisticsProto.Currency grpcCurrency) {
         return switch (grpcCurrency) {
             case USD -> Currency.USD;
             case EUR -> Currency.EUR;
@@ -123,7 +125,12 @@ public class accountGrpcClientImpl implements AccountClient {
         };
     }
 
-    private TimePeriod mapToPeriod(AccountProto.TimePeriod grpcPeriod) {
+    private TimePeriod mapToPeriod(StatisticsProto.TimePeriod grpcPeriod) {
+        return getTimePeriod(grpcPeriod);
+    }
+
+    @NotNull
+    public static TimePeriod getTimePeriod(StatisticsProto.TimePeriod grpcPeriod) {
         return switch (grpcPeriod) {
             case YEAR -> TimePeriod.YEAR;
             case QUARTER -> TimePeriod.QUARTER;
@@ -134,8 +141,8 @@ public class accountGrpcClientImpl implements AccountClient {
         };
     }
 
-    private AccountProto.Item convertToGrpcItem(Item item) {
-        return AccountProto.Item.newBuilder()
+    private StatisticsProto.Item convertToGrpcItem(Item item) {
+        return StatisticsProto.Item.newBuilder()
                 .setTitle(item.getTitle())
                 .setAmount(item.getAmount().toPlainString())
                 .setCurrency(convertToGrpcCurrency(item.getCurrency()))
@@ -143,8 +150,8 @@ public class accountGrpcClientImpl implements AccountClient {
                 .build();
     }
 
-    private AccountProto.Saving convertToGrpcSaving(Saving saving) {
-        return AccountProto.Saving.newBuilder()
+    private StatisticsProto.Saving convertToGrpcSaving(Saving saving) {
+        return StatisticsProto.Saving.newBuilder()
                 .setAmount(saving.getAmount().toPlainString())
                 .setCurrency(convertToGrpcCurrency(saving.getCurrency()))
                 .setInterest(saving.getInterest().toPlainString())
@@ -153,21 +160,26 @@ public class accountGrpcClientImpl implements AccountClient {
                 .build();
     }
 
-    private AccountProto.TimePeriod convertToGrpcPeriod(TimePeriod period) {
+    private StatisticsProto.TimePeriod convertToGrpcPeriod(TimePeriod period) {
+        return getTimePeriod(period);
+    }
+
+    @NotNull
+    public static StatisticsProto.TimePeriod getTimePeriod(TimePeriod period) {
         return switch (period) {
-            case YEAR -> AccountProto.TimePeriod.YEAR;
-            case QUARTER -> AccountProto.TimePeriod.QUARTER;
-            case MONTH -> AccountProto.TimePeriod.MONTH;
-            case DAY -> AccountProto.TimePeriod.DAY;
-            case HOUR -> AccountProto.TimePeriod.HOUR;
+            case YEAR -> StatisticsProto.TimePeriod.YEAR;
+            case QUARTER -> StatisticsProto.TimePeriod.QUARTER;
+            case MONTH -> StatisticsProto.TimePeriod.MONTH;
+            case DAY -> StatisticsProto.TimePeriod.DAY;
+            case HOUR -> StatisticsProto.TimePeriod.HOUR;
         };
     }
 
-    private AccountProto.Currency convertToGrpcCurrency(Currency currency) {
+    private StatisticsProto.Currency convertToGrpcCurrency(Currency currency) {
         return switch (currency) {
-            case USD -> AccountProto.Currency.USD;
-            case EUR -> AccountProto.Currency.EUR;
-            case RUB -> AccountProto.Currency.RUB;
+            case USD -> StatisticsProto.Currency.USD;
+            case EUR -> StatisticsProto.Currency.EUR;
+            case RUB -> StatisticsProto.Currency.RUB;
         };
     }
     }

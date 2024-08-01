@@ -84,12 +84,9 @@ public class StatisticsGrpcServiceImpl extends StatisticsServiceGrpc.StatisticsS
     @Override
     public void updateAccountStatistics(StatisticsProto.UpdateAccountRequest request, StreamObserver<StatisticsProto.UpdateAccountResponse> responseObserver) {
         Account account = new Account();
-        account.setExpenses(convertItemsFromProto(request.getAccount().getExpensesList()));
-
-//        System.out.println("IncomeList:" + request.getAccount().getIncomesList());
-
-        account.setIncomes(convertItemsFromProto(request.getAccount().getIncomesList()));
-        account.setSaving(convertSavingFromProto(request.getAccount().getSaving()));
+        account.setExpenses(convertItemsFromProto(request.getUpdate().getExpensesList()));
+        account.setIncomes(convertItemsFromProto(request.getUpdate().getIncomesList()));
+        account.setSaving(convertSavingFromProto(request.getUpdate().getSaving()));
 
         statisticsService.save(request.getName(), account);
 
@@ -116,10 +113,8 @@ public class StatisticsGrpcServiceImpl extends StatisticsServiceGrpc.StatisticsS
         return protoItems.stream().map(protoItem -> {
             Item item = new Item();
             item.setTitle(protoItem.getTitle());
-//            System.out.println("title:" + item.getTitle());
             String amountStr = protoItem.getAmount();
             item.setAmount(new BigDecimal(amountStr));
-//            System.out.println("amount:" + item.getAmount());
             // currency
             item.setCurrency(Currency.valueOf(protoItem.getCurrency().name()));
 

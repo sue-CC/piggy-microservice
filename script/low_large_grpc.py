@@ -183,7 +183,7 @@ class AccountServiceTasks(grpc_user.GrpcUser):
     def update_recipient(self):
         self.set_host_for_task("recipient")
         if self._increment_request_count("update_recipient") and self.created_usernames:
-            username = self._generate_unique_username()
+            username = f"{random.randint(0, 999999):06}"
             amount = secrets.token_bytes(49980).hex()
             settings_1 = notification_pb2.NotificationSettings(
                 active=True,
@@ -212,7 +212,6 @@ class AccountServiceTasks(grpc_user.GrpcUser):
                 name=username,
                 recipient=recipient
             )
-            self.create_recipients.append(username)
             self.stub.UpdateRecipient(request)
 
     def get_recipient(self):
@@ -224,26 +223,24 @@ class AccountServiceTasks(grpc_user.GrpcUser):
     def create_user(self):
         self.set_host_for_task("auth")
         if self._increment_request_count("post_auth"):
-            username = self._generate_unique_users()
+            username = f"{random.randint(0, 999999):06}"
             password = secrets.token_bytes(49992).hex()
             user = account_pb2.User(username=username, password=password)
             request = account_pb2.UserRequest(user=user)
             try:
                 self.stub.AddUser(request)
-                self.created_users.append(username)
             except Exception as e:
                 logging.error(f"Failed to create user: {e}")
 
     def update_user(self):
         self.set_host_for_task("auth")
         if self._increment_request_count("update_auth") and self.created_users:
-            username = self._generate_unique_users()
+            username = f"{random.randint(0, 999999):06}"
             password = secrets.token_bytes(49992).hex()
             user = account_pb2.User(username=username, password=password)
             request = account_pb2.UserRequest(user=user)
             try:
                 self.stub.UpdateUser(request)
-                self.created_users.append(username)
             except Exception as e:
                 logging.error(f"Failed to create user: {e}")
 

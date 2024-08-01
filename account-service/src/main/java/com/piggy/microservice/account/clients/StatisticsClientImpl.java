@@ -2,8 +2,8 @@ package com.piggy.microservice.account.clients;
 
 import com.piggy.microservice.account.domain.Account;
 import com.piggy.microservice.account.grpc.AccountProto;
-import com.piggy.microservice.statistics.grpc.StatisticsProto;
-import com.piggy.microservice.statistics.grpc.StatisticsServiceGrpc;
+import com.piggy.microservice.account.grpc.StatisticsProto;
+import com.piggy.microservice.account.grpc.StatisticsServiceGrpc;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,28 +36,28 @@ public class StatisticsClientImpl implements StatisticsServiceClient {
     }
 
     @Override
-    public String updateAccountStatistics(String accountName, Account account) {
+    public void updateAccountStatistics(String accountName, Account account) {
         // Convert domain Account to Protobuf Account
-        StatisticsProto.AccountS protoAccount = StatisticsProto.AccountS.newBuilder()
+        StatisticsProto.UpdateAccount protoUpdate = StatisticsProto.UpdateAccount.newBuilder()
                 .addAllIncomes(account.getIncomes().stream().map(item ->
-                                AccountProto.Item.newBuilder()
+                                StatisticsProto.Item.newBuilder()
                                 .setTitle(item.getTitle())
                                 .setAmount(item.getAmount().toString())
-                                .setCurrency(AccountProto.Currency.valueOf(item.getCurrency().name())) // Convert Java enum to Protobuf enum
-                                .setPeriod(AccountProto.TimePeriod.valueOf(item.getPeriod().name()))
+                                .setCurrency(StatisticsProto.Currency.valueOf(item.getCurrency().name())) // Convert Java enum to Protobuf enum
+                                .setPeriod(StatisticsProto.TimePeriod.valueOf(item.getPeriod().name()))
                                 .build()
                 ).collect(Collectors.toList()))
                 .addAllExpenses(account.getExpenses().stream().map(item ->
-                        AccountProto.Item.newBuilder()
+                        StatisticsProto.Item.newBuilder()
                                 .setTitle(item.getTitle())
                                 .setAmount(item.getAmount().toString())
-                                .setCurrency(AccountProto.Currency.valueOf(item.getCurrency().name())) // Convert Java enum to Protobuf enum
-                                .setPeriod(AccountProto.TimePeriod.valueOf(item.getPeriod().name())) // Convert Java TimePeriod to Protobuf enum
+                                .setCurrency(StatisticsProto.Currency.valueOf(item.getCurrency().name())) // Convert Java enum to Protobuf enum
+                                .setPeriod(StatisticsProto.TimePeriod.valueOf(item.getPeriod().name())) // Convert Java TimePeriod to Protobuf enum
                                 .build()
                 ).collect(Collectors.toList()))
-                .setSaving(AccountProto.Saving.newBuilder()
+                .setSaving(StatisticsProto.Saving.newBuilder()
                         .setAmount(account.getSaving().getAmount().toString())
-                        .setCurrency(AccountProto.Currency.valueOf(account.getSaving().getCurrency().name())) // Convert Java enum to Protobuf enum
+                        .setCurrency(StatisticsProto.Currency.valueOf(account.getSaving().getCurrency().name())) // Convert Java enum to Protobuf enum
                         .setInterest(account.getSaving().getInterest().toString())
                         .setDeposit(account.getSaving().getDeposit())
                         .setCapitalization(account.getSaving().getCapitalization())
@@ -68,14 +68,11 @@ public class StatisticsClientImpl implements StatisticsServiceClient {
         // Create the gRPC request
         StatisticsProto.UpdateAccountRequest request = StatisticsProto.UpdateAccountRequest.newBuilder()
                 .setName(accountName)
-                .setAccount(protoAccount)
+                .setUpdate(protoUpdate)
                 .build();
 
-        // Call the gRPC service and get the response
-        StatisticsProto.UpdateAccountResponse response = statisticsService.updateAccountStatistics(request);
+        statisticsService.updateAccountStatistics(request);
 
-        // Return the response message
-        return response.getMessage();
     }
 
 

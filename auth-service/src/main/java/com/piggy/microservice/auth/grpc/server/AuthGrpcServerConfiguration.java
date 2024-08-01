@@ -1,5 +1,6 @@
 package com.piggy.microservice.auth.grpc.server;
 
+import com.piggy.microservice.auth.repository.UserRepository;
 import com.piggy.microservice.auth.service.UserServiceImpl;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -12,14 +13,14 @@ import javax.annotation.PreDestroy;
 @Component
 public class AuthGrpcServerConfiguration {
     private final Server server;
-    private final UserServiceImpl userService;
+    private final UserRepository userRepository;
 
 
-    public AuthGrpcServerConfiguration(@Value("${auth.server.port:9091}")int port, UserServiceImpl userService) {
-        this.userService = userService;
-        System.out.println("AuthService injected: " + (userService != null));
+    public AuthGrpcServerConfiguration(@Value("${auth.server.port:9091}")int port, UserRepository userRepository) {
+        this.userRepository = userRepository;
+        System.out.println("AuthService injected: " + (userRepository != null));
         ServerBuilder<?> builder = ServerBuilder.forPort(port);
-        builder.addService(new UserGrpcServiceImpl(userService));
+        builder.addService(new UserGrpcServiceImpl(userRepository));
         this.server = builder.build();
     }
 

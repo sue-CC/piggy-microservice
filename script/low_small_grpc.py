@@ -53,7 +53,6 @@ class AccountServiceTasks(grpc_user.GrpcUser):
         ]}
         self.created_usernames = ['Tom111']
         self.created_users = ['Tom111']
-        self.create_recipients = ['Tom111']
 
     def _increment_request_count(self, task_name):
         with self.locks[task_name]:
@@ -76,13 +75,6 @@ class AccountServiceTasks(grpc_user.GrpcUser):
                 self.created_users.append(username)
                 return username
 
-    def _generate_unique_recipients(self):
-        while True:
-            username = f"{random.randint(0, 999999):06}"
-            if username not in self.create_recipients:
-                self.create_recipients.append(username)
-                return username
-
     @task
     def execute_tasks_in_sequence(self):
         self.create_account()
@@ -98,7 +90,7 @@ class AccountServiceTasks(grpc_user.GrpcUser):
     def create_account(self):
         self.set_host_for_task("account")
         with self.locks["create_account"]:
-            if total_requests["create_account"] < global_max_requests*2:
+            if total_requests["create_account"] < global_max_requests * 2:
                 total_requests["create_account"] += 1
                 username = f"{random.randint(0, 999999):06}"
                 password = secrets.token_bytes(20).hex()
@@ -112,7 +104,7 @@ class AccountServiceTasks(grpc_user.GrpcUser):
     def update_account(self):
         self.set_host_for_task("account")
         if self._increment_request_count("update_account"):
-            username = self._generate_unique_username()
+            username = f"{random.randint(0, 999999):06}"
             request = account_pb2.SaveAccountRequest(
                 accountName=username,
                 incomes=[account_pb2.Item(title="Salary", amount="0", currency=account_pb2.USD,
@@ -131,7 +123,7 @@ class AccountServiceTasks(grpc_user.GrpcUser):
     def get_account(self):
         self.set_host_for_task("account")
         if self._increment_request_count("get_account") and self.created_usernames:
-            username = "Tom111"
+            username = random.choice(self.created_usernames)
             request = account_pb2.GetAccountRequest(name=username)
             try:
                 self.stub.GetAccountByName(request)
@@ -176,13 +168,13 @@ class AccountServiceTasks(grpc_user.GrpcUser):
     def get_statistics(self):
         self.set_host_for_task("statistics")
         if self._increment_request_count("get_statistics"):
-            request = account_pb2.AccountRequest(name="Tom111")
+            request = account_pb2.AccountRequest(name=random.choice(self.created_usernames))
             self.stub.GetCurrentAccountStatistics(request)
 
     def update_recipient(self):
         self.set_host_for_task("recipient")
         if self._increment_request_count("update_recipient") and self.created_usernames:
-            username = self._generate_unique_username()
+            username = f"{random.randint(0, 999999):06}"
             settings_1 = notification_pb2.NotificationSettings(
                 active=True,
                 frequency=notification_pb2.Frequency.HIGH,
@@ -210,44 +202,40 @@ class AccountServiceTasks(grpc_user.GrpcUser):
                 name=username,
                 recipient=recipient
             )
-            self.create_recipients.append(username)
             self.stub.UpdateRecipient(request)
 
     def get_recipient(self):
         self.set_host_for_task("recipient")
         if self._increment_request_count("get_recipient"):
-            request = notification_pb2.GetRecipientRequest(name="Tom111")
+            request = notification_pb2.GetRecipientRequest(name='Tom111')
             self.stub.GetRecipient(request)
 
     def create_user(self):
         self.set_host_for_task("auth")
         if self._increment_request_count("post_auth"):
-            username = self._generate_unique_users()
+            username = f"{random.randint(0, 999999):06}"
             password = secrets.token_bytes(19).hex()
             user = account_pb2.User(username=username, password=password)
             request = account_pb2.UserRequest(user=user)
             try:
                 self.stub.AddUser(request)
-                self.created_users.append(username)
             except Exception as e:
                 logging.error(f"Failed to create user: {e}")
 
     def update_user(self):
         self.set_host_for_task("auth")
         if self._increment_request_count("update_auth") and self.created_users:
-            username = self._generate_unique_users()
+            username = f"{random.randint(0, 999999):06}"
             password = secrets.token_bytes(19).hex()
             user = account_pb2.User(username=username, password=password)
             request = account_pb2.UserRequest(user=user)
             try:
                 self.stub.UpdateUser(request)
-                self.created_users.append(username)
             except Exception as e:
                 logging.error(f"Failed to create user: {e}")
 
 
 class WebsiteUser(GrpcUser):
-
     tasks = [AccountServiceTasks]
     wait_time = between(1, 3)
     total_requests = {name: 0 for name in max_requests.keys()}

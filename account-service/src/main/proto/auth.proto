@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option java_package = "com.piggy.microservice.auth.grpc";
+option java_package = "com.piggy.microservice.account.grpc";
 option java_outer_classname = "UserProto";
 
 import "google/protobuf/empty.proto";

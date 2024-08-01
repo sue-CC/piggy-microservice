@@ -1,7 +1,7 @@
 package com.piggy.microservice.account.service;
 
 import com.piggy.microservice.account.clients.StatisticsClientImpl;
-import com.piggy.microservice.account.clients.authClientImpl;
+import com.piggy.microservice.account.clients.AuthClientImpl;
 import com.piggy.microservice.account.domain.Account;
 import com.piggy.microservice.account.domain.Currency;
 import com.piggy.microservice.account.domain.Saving;
@@ -20,11 +20,11 @@ public class AccountServiceImpl implements AccountService {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final AccountRepository accountRepository;
-    private final authClientImpl authClientImpl;
+    private final AuthClientImpl authClientImpl;
     private final StatisticsClientImpl statisticsServiceClient;
 
     @Autowired
-    public AccountServiceImpl(AccountRepository accountRepository, authClientImpl authClientImpl, StatisticsClientImpl statisticsServiceClient) {
+    public AccountServiceImpl(AccountRepository accountRepository, AuthClientImpl authClientImpl, StatisticsClientImpl statisticsServiceClient) {
         this.accountRepository = accountRepository;
         this.authClientImpl = authClientImpl;
         this.statisticsServiceClient = statisticsServiceClient;
@@ -42,9 +42,9 @@ public class AccountServiceImpl implements AccountService {
         authClientImpl.createUser(user);
 
         Saving saving = new Saving();
-        saving.setAmount(BigDecimal.ZERO);
+        saving.setAmount(new BigDecimal(0));
         saving.setCurrency(Currency.getDefault());
-        saving.setInterest(BigDecimal.ZERO);
+        saving.setInterest(new BigDecimal(0));
         saving.setDeposit(false);
         saving.setCapitalization(false);
 
@@ -79,7 +79,7 @@ public class AccountServiceImpl implements AccountService {
 
         log.info("save changes have been saved: " + account.getName());
 
-        statisticsServiceClient.updateAccountStatistics(name, account);
+        statisticsServiceClient.updateAccountStatistics(name, update);
     }
 
 
