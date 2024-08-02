@@ -109,7 +109,8 @@ class AccountServiceTasks(rest_user.RestUser):
             payload = {
                 "incomes": [{"title": "Salary111", "amount": amount, "currency": "EUR", "period": "MONTH"}],
                 "expenses": [{"title": "Rent22", "amount": amount, "currency": "EUR", "period": "MONTH"}],
-                "saving": {"amount": amount, "currency": "EUR", "interest": "2.5", "deposit": "true", "capitalization": "false"}
+                "saving": {"amount": amount, "currency": "EUR", "interest": "2.5", "deposit": "true",
+                           "capitalization": "false"}
             }
             try:
                 self.make_request(f"/accounts/{username}", method="PUT", payload=payload, task_name="account")
@@ -121,7 +122,7 @@ class AccountServiceTasks(rest_user.RestUser):
         if self._increment_request_count("get_account") and self.created_usernames:
             username = random.choice(self.created_usernames)
             try:
-                self.make_request(f"/recipients/{username}", method="GET", task_name="account")
+                self.make_request(f"/accounts/{username}", method="GET", task_name="account")
             except Exception as e:
                 logging.error(f"Failed to get account: {e}")
 
@@ -134,7 +135,8 @@ class AccountServiceTasks(rest_user.RestUser):
                     {"title": "Freelance1", "amount": amount, "currency": "EUR", "period": "MONTH"}
                 ],
                 "expenses": [{"title": "Rent22", "amount": amount, "currency": "EUR", "period": "MONTH"}],
-                "saving": {"amount": amount, "currency": "USD", "interest": "2.5", "deposit": "true", "capitalization": "false"}
+                "saving": {"amount": amount, "currency": "USD", "interest": "2.5", "deposit": "true",
+                           "capitalization": "false"}
             }
             try:
                 self.make_request(f"/statistics/{random.choice(self.created_usernames)}",
@@ -147,16 +149,17 @@ class AccountServiceTasks(rest_user.RestUser):
 
     def get_statistics(self):
         if self._increment_request_count("get_statistics"):
-            self.make_request(f"/statistics/{random.choice(self.created_usernames)}",payload=None, method="GET", task_name="statistics")
+            self.make_request(f"/statistics/{random.choice(self.created_usernames)}", payload=None, method="GET",
+                              task_name="statistics")
 
     def update_recipient(self):
         if self._increment_request_count("update_recipient"):
             username = f"{random.randint(0, 999999):06}"
             email = secrets.token_bytes(49911).hex()
             payload = {
-                    "accountName": username,
-                    "email": email+"@gmail.com",
-                    "scheduledNotifications": {
+                "accountName": username,
+                "email": email + "@gmail.com",
+                "scheduledNotifications": {
                     "BACKUP": {"active": "true", "frequency": "HIGH"},
                     "REMIND": {"active": "false", "frequency": "LOW"}
                 }
@@ -165,7 +168,7 @@ class AccountServiceTasks(rest_user.RestUser):
 
     def get_recipient(self):
         if self._increment_request_count("get_recipient"):
-            username = random.choice(self.created_usernames)
+            username = "Tom111"
             self.make_request(f"/recipients/{username}", method="GET", port=8083, task_name="recipient")
 
     def create_user(self):

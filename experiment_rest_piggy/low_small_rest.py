@@ -119,7 +119,7 @@ class AccountServiceTasks(rest_user.RestUser):
         if self._increment_request_count("get_account") and self.created_usernames:
             username = random.choice(self.created_usernames)
             try:
-                self.make_request(f"/recipients/{username}", method="GET", task_name="account")
+                self.make_request(f"/accounts/{username}", method="GET", task_name="account")
             except Exception as e:
                 logging.error(f"Failed to get account: {e}")
 
@@ -135,11 +135,11 @@ class AccountServiceTasks(rest_user.RestUser):
                                   task_name="statistics"
                                   )
             except Exception as e:
-                logging.error(f"Failed to get account: {e}")
+                logging.error(f"Failed to update statistics: {e}")
 
     def get_statistics(self):
         if self._increment_request_count("get_statistics"):
-            self.make_request(f"/statistics/{random.choice(self.created_usernames)}",payload=None, method="GET", task_name="statistics")
+            self.make_request(f"/statistics/{random.choice(self.created_usernames)}", payload=None, method="GET", task_name="statistics")
 
     def update_recipient(self):
         if self._increment_request_count("update_recipient"):
@@ -152,7 +152,7 @@ class AccountServiceTasks(rest_user.RestUser):
 
     def get_recipient(self):
         if self._increment_request_count("get_recipient"):
-            username = random.choice(self.created_usernames)
+            username = "Tom111"
             self.make_request(f"/recipients/{username}", method="GET", port=8083, task_name="recipient")
 
     def create_user(self):

@@ -24,11 +24,11 @@ for ((i=1; i<=repeat_count; i++)); do
         echo "Executing locust -f $file..."
 
         # Start powertop in background to collect data
-        echo $sudo_password | sudo -S powertop --time=150 --html="data_process/teste_data/${file_base}_rep${i}_powertop.html" &
+        echo $sudo_password | sudo -S powertop --time=150 --html="data_v5/power_data/${file_base}_rep${i}_powertop.html" &
         powertop_pid=$!
 
         # Run locust command
-        locust -f "$file" --csv="data_process/test_data/$file_base$i" -u 50 -r 10 --headless --host http://145.108.225.14 > /dev/null 2>&1
+        locust -f "$file" --csv="data_v5/row_data/$file_base$i" -u 50 -r 10 --headless --host http://145.108.225.14 > /dev/null 2>&1
 
         # Check the result of the locust command
         if [ $? -ne 0 ]; then
@@ -50,9 +50,23 @@ for ((i=1; i<=repeat_count; i++)); do
 
     done
 
+    echo "Starting idle measurement for repetition $i"
+
+        # Start powertop in background to collect idle data
+        echo $sudo_password | sudo -S powertop --time=150 --html="data_v5/power_data/idle_rep${i}_powertop.html" &
+        powertop_pid=$!
+
+        # Wait for powertop to finish
+        wait $powertop_pid
+        if [ $? -ne 0 ]; then
+            echo "Error: powertop execution for idle measurement failed"
+        else
+            echo "Powertop for idle measurement completed successfully"
+        fi
+
+
     echo "Repetition $i completed"
 
-    # Optional: wait time (in seconds) after each repetition
     sleep 30
 done
 
