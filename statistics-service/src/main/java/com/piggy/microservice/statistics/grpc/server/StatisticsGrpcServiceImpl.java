@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class StatisticsGrpcServiceImpl extends StatisticsServiceGrpc.StatisticsServiceImplBase {
@@ -34,68 +35,75 @@ public class StatisticsGrpcServiceImpl extends StatisticsServiceGrpc.StatisticsS
     public void getCurrentAccountStatistics(StatisticsProto.AccountRequest request, StreamObserver<StatisticsProto.AccountStatisticsResponse> responseObserver) {
         List<DataPoint> dataPoints = statisticsService.findByAccountName(request.getName());
 
-        StatisticsProto.AccountStatisticsResponse.Builder responseBuilder = StatisticsProto.AccountStatisticsResponse.newBuilder();
-        for (DataPoint dataPoint : dataPoints) {
-            StatisticsProto.DataPoint.Builder grpcDataPoint = StatisticsProto.DataPoint.newBuilder()
-                    .setId(StatisticsProto.DataPointId.newBuilder()
-                            .setAccount(dataPoint.getId().getAccount())
-                            .setDate(new SimpleDateFormat("yyyy-MM-dd").format(dataPoint.getId().getDate()))
-                            .build());
+        List<StatisticsProto.DataPoint> grpcDataPoints = dataPoints.stream()
+                .map(this::buildGrpcDataPoint)
+                .collect(Collectors.toList());
 
-            for (ItemMetric income : dataPoint.getIncomes()) {
-                grpcDataPoint.addIncomes(StatisticsProto.Item.newBuilder()
-                        .setTitle(income.getTitle())
-                        .setAmount(income.getAmount().toString())
-                        .build());
-            }
+        StatisticsProto.AccountStatisticsResponse response = StatisticsProto.AccountStatisticsResponse.newBuilder()
+                .addAllDataPoints(grpcDataPoints)
+                .build();
 
-            for (ItemMetric expense : dataPoint.getExpenses()) {
-                grpcDataPoint.addExpenses(StatisticsProto.Item.newBuilder()
-                        .setTitle(expense.getTitle())
-                        .setAmount(expense.getAmount().toString())
-                        .build());
-            }
-
-            for (Map.Entry<StatisticMetric, BigDecimal> entry : dataPoint.getStatistics().entrySet()) {
-                grpcDataPoint.addStatistics(
-                        StatisticsProto.StatisticEntry.newBuilder()
-                                .setMetric(StatisticsProto.StatisticMetric.valueOf(entry.getKey().name()))
-                                .setValue(entry.getValue().toString())
-                                .build()
-                );
-            }
-
-            for (Map.Entry<Currency, BigDecimal> entry : dataPoint.getRates().entrySet()) {
-                grpcDataPoint.addRates(
-                        StatisticsProto.CurrencyEntry.newBuilder()
-                                .setCurrency(StatisticsProto.Currency.valueOf(entry.getKey().name())) // Convert Java enum to Protobuf enum
-                                .setRate(entry.getValue().toString())
-                                .build()
-                );
-            }
-
-            responseBuilder.addDataPoints(grpcDataPoint.build());
-        }
-
-        responseObserver.onNext(responseBuilder.build());
+        responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
 
     @Override
     public void updateAccountStatistics(StatisticsProto.UpdateAccountRequest request, StreamObserver<StatisticsProto.UpdateAccountResponse> responseObserver) {
-        Account account = new Account();
-        account.setExpenses(convertItemsFromProto(request.getUpdate().getExpensesList()));
-        account.setIncomes(convertItemsFromProto(request.getUpdate().getIncomesList()));
-        account.setSaving(convertSavingFromProto(request.getUpdate().getSaving()));
+        try {
+            Account account = new Account();
+            account.setExpenses(convertItemsFromProto(request.getUpdate().getExpensesList()));
+            account.setIncomes(convertItemsFromProto(request.getUpdate().getIncomesList()));
+            account.setSaving(convertSavingFromProto(request.getUpdate().getSaving()));
 
-        statisticsService.save(request.getName(), account);
+            statisticsService.save(request.getName(), account);
 
-        StatisticsProto.UpdateAccountResponse response = StatisticsProto.UpdateAccountResponse.newBuilder()
-                .setMessage("Account: " + request.getName() + " has been updated.")
-                .build();
+            StatisticsProto.UpdateAccountResponse response = StatisticsProto.UpdateAccountResponse.newBuilder()
+                    .setMessage("Account: " + request.getName() + " has been updated.")
+                    .build();
 
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(e);
+        }
+    }
+
+    private StatisticsProto.DataPoint buildGrpcDataPoint(DataPoint dataPoint) {
+        StatisticsProto.DataPoint.Builder grpcDataPoint = StatisticsProto.DataPoint.newBuilder()
+                .setId(StatisticsProto.DataPointId.newBuilder()
+                        .setAccount(dataPoint.getId().getAccount())
+                        .setDate(new SimpleDateFormat("yyyy-MM-dd").format(dataPoint.getId().getDate()))
+                        .build());
+
+        dataPoint.getIncomes().forEach(income -> grpcDataPoint.addIncomes(
+                StatisticsProto.Item.newBuilder()
+                        .setTitle(income.getTitle())
+                        .setAmount(income.getAmount().toString())
+                        .build()
+        ));
+
+        dataPoint.getExpenses().forEach(expense -> grpcDataPoint.addExpenses(
+                StatisticsProto.Item.newBuilder()
+                        .setTitle(expense.getTitle())
+                        .setAmount(expense.getAmount().toString())
+                        .build()
+        ));
+
+        dataPoint.getStatistics().forEach((metric, value) -> grpcDataPoint.addStatistics(
+                StatisticsProto.StatisticEntry.newBuilder()
+                        .setMetric(StatisticsProto.StatisticMetric.valueOf(metric.name()))
+                        .setValue(value.toString())
+                        .build()
+        ));
+
+        dataPoint.getRates().forEach((currency, rate) -> grpcDataPoint.addRates(
+                StatisticsProto.CurrencyEntry.newBuilder()
+                        .setCurrency(StatisticsProto.Currency.valueOf(currency.name()))
+                        .setRate(rate.toString())
+                        .build()
+        ));
+
+        return grpcDataPoint.build();
     }
 
     private TimePeriod convertTimePeriodFromProto(StatisticsProto.TimePeriod protoTimePeriod) {
@@ -113,49 +121,31 @@ public class StatisticsGrpcServiceImpl extends StatisticsServiceGrpc.StatisticsS
         return protoItems.stream().map(protoItem -> {
             Item item = new Item();
             item.setTitle(protoItem.getTitle());
-            String amountStr = protoItem.getAmount();
-            item.setAmount(new BigDecimal(amountStr));
-            // currency
+            item.setAmount(convertBigDecimal(protoItem.getAmount()));
             item.setCurrency(Currency.valueOf(protoItem.getCurrency().name()));
-
-            // time period
             item.setPeriod(convertTimePeriodFromProto(protoItem.getPeriod()));
-
             return item;
-        }).toList();
+        }).collect(Collectors.toList());
     }
 
     private Saving convertSavingFromProto(StatisticsProto.Saving protoSaving) {
         Saving saving = new Saving();
-
-        // Validate and convert amount
-        String amountStr = protoSaving.getAmount();
-        if (amountStr == null || amountStr.trim().isEmpty()) {
-            throw new NumberFormatException("Input amount string is null or empty");
-        }
-        try {
-            saving.setAmount(new BigDecimal(amountStr));
-        } catch (NumberFormatException e) {
-            throw new NumberFormatException("Invalid BigDecimal input: " + amountStr);
-        }
-
-        saving.setCurrency(Currency.valueOf(protoSaving.getCurrency().name())); // Convert Protobuf enum to Java enum
-
-        // Validate and convert interest
-        String interestStr = protoSaving.getInterest();
-        if (interestStr == null || interestStr.trim().isEmpty()) {
-            throw new NumberFormatException("Input interest string is null or empty");
-        }
-        try {
-            saving.setInterest(new BigDecimal(interestStr));
-        } catch (NumberFormatException e) {
-            throw new NumberFormatException("Invalid BigDecimal input: " + interestStr);
-        }
-
-        saving.setDeposit(protoSaving.getDeposit()); // Convert boolean
-        saving.setCapitalization(protoSaving.getCapitalization()); // Convert boolean
+        saving.setAmount(convertBigDecimal(protoSaving.getAmount()));
+        saving.setCurrency(Currency.valueOf(protoSaving.getCurrency().name()));
+        saving.setInterest(convertBigDecimal(protoSaving.getInterest()));
+        saving.setDeposit(protoSaving.getDeposit());
+        saving.setCapitalization(protoSaving.getCapitalization());
         return saving;
     }
 
-
+    private BigDecimal convertBigDecimal(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            throw new NumberFormatException("Input string is null or empty");
+        }
+        try {
+            return new BigDecimal(value);
+        } catch (NumberFormatException e) {
+            throw new NumberFormatException("Invalid BigDecimal input: " + value);
+        }
+    }
 }

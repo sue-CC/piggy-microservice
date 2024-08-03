@@ -68,13 +68,6 @@ class AccountServiceTasks(grpc_user.GrpcUser):
                 self.created_usernames.append(username)
                 return username
 
-    def _generate_unique_users(self):
-        while True:
-            username = f"{random.randint(0, 999999):06}"
-            if username not in self.created_users:
-                self.created_users.append(username)
-                return username
-
     @task
     def execute_tasks_in_sequence(self):
         self.create_account()
@@ -90,7 +83,7 @@ class AccountServiceTasks(grpc_user.GrpcUser):
     def create_account(self):
         self.set_host_for_task("account")
         with self.locks["create_account"]:
-            if total_requests["create_account"] < global_max_requests * 2:
+            if total_requests["create_account"] < global_max_requests*2:
                 total_requests["create_account"] += 1
                 username = f"{random.randint(0, 999999):06}"
                 password = secrets.token_bytes(20).hex()
@@ -207,7 +200,7 @@ class AccountServiceTasks(grpc_user.GrpcUser):
     def get_recipient(self):
         self.set_host_for_task("recipient")
         if self._increment_request_count("get_recipient"):
-            request = notification_pb2.GetRecipientRequest(name='Tom111')
+            request = notification_pb2.GetRecipientRequest(name="Tom111")
             self.stub.GetRecipient(request)
 
     def create_user(self):

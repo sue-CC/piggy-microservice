@@ -75,13 +75,6 @@ class AccountServiceTasks(grpc_user.GrpcUser):
                 self.created_users.append(username)
                 return username
 
-    def _generate_unique_recipients(self):
-        while True:
-            username = f"{random.randint(0, 999999):05}"
-            if username not in self.create_recipients:
-                self.create_recipients.append(username)
-                return username
-
     @task
     def execute_tasks_in_sequence(self):
         self.create_account()
@@ -131,7 +124,7 @@ class AccountServiceTasks(grpc_user.GrpcUser):
     def get_account(self):
         self.set_host_for_task("account")
         if self._increment_request_count("get_account") and self.created_usernames:
-            username = "Tom111"
+            username = random.choice(self.created_usernames)
             request = account_pb2.GetAccountRequest(name=username)
             try:
                 self.stub.GetAccountByName(request)
@@ -141,7 +134,7 @@ class AccountServiceTasks(grpc_user.GrpcUser):
     def update_statistics(self):
         self.set_host_for_task("statistics")
         if self._increment_request_count("update_statistics") and self.created_usernames:
-            username = f"{random.randint(0, 999999):06}"
+            username = random.choice(self.created_usernames)
             amount = secrets.token_bytes(475).hex()
             request = account_pb2.UpdateAccountRequest(
                 name=username,
@@ -177,7 +170,8 @@ class AccountServiceTasks(grpc_user.GrpcUser):
     def get_statistics(self):
         self.set_host_for_task("statistics")
         if self._increment_request_count("get_statistics"):
-            request = account_pb2.AccountRequest(name="Tom111")
+            username = random.choice(self.created_usernames)
+            request = account_pb2.AccountRequest(name=username)
             self.stub.GetCurrentAccountStatistics(request)
 
     def update_recipient(self):

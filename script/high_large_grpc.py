@@ -141,7 +141,7 @@ class AccountServiceTasks(grpc_user.GrpcUser):
     def update_statistics(self):
         self.set_host_for_task("statistics")
         if self._increment_request_count("update_statistics") and self.created_usernames:
-            username = f"{random.randint(0, 999999):06}"
+            username = random.choice(self.created_usernames)
             amount = secrets.token_bytes(49974).hex()
             request = account_pb2.UpdateAccountRequest(
                 name=username,
@@ -177,7 +177,8 @@ class AccountServiceTasks(grpc_user.GrpcUser):
     def get_statistics(self):
         self.set_host_for_task("statistics")
         if self._increment_request_count("get_statistics"):
-            request = account_pb2.AccountRequest(name="Tom111")
+            username = random.choice(self.created_usernames)
+            request = account_pb2.AccountRequest(name=username)
             self.stub.GetCurrentAccountStatistics(request)
 
     def update_recipient(self):
@@ -246,7 +247,6 @@ class AccountServiceTasks(grpc_user.GrpcUser):
 
 
 class WebsiteUser(GrpcUser):
-
     tasks = [AccountServiceTasks]
     wait_time = between(1, 3)
     total_requests = {name: 0 for name in max_requests.keys()}

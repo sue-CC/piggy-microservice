@@ -45,7 +45,7 @@ class LocustInterceptor(ClientInterceptor):
             request_type="grpc",
             name=call_details.method + request_id,
             response_time=(time.perf_counter() - start_perf_counter) * 1000,
-            response_length=request_size,
+            response_length=response_length,
             response=response,
             context=None,
             exception=exception,

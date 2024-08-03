@@ -68,13 +68,6 @@ class AccountServiceTasks(grpc_user.GrpcUser):
                 self.created_usernames.append(username)
                 return username
 
-    def _generate_unique_users(self):
-        while True:
-            username = f"{random.randint(0, 999999):06}"
-            if username not in self.created_users:
-                self.created_users.append(username)
-                return username
-
     @task
     def execute_tasks_in_sequence(self):
         self.create_account()
@@ -207,7 +200,7 @@ class AccountServiceTasks(grpc_user.GrpcUser):
     def get_recipient(self):
         self.set_host_for_task("recipient")
         if self._increment_request_count("get_recipient"):
-            request = notification_pb2.GetRecipientRequest(name=random.choice(self.created_usernames))
+            request = notification_pb2.GetRecipientRequest(name="Tom111")
             self.stub.GetRecipient(request)
 
     def create_user(self):
