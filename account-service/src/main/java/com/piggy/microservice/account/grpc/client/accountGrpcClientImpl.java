@@ -62,6 +62,7 @@ public class accountGrpcClientImpl implements AccountClient {
                 .setSaving(convertToGrpcSaving(account.getSaving()))
                 .build();
         AccountProto.SuccessMessage response = accountService.saveCurrentAccount(request);
+        logger.info(response.getSuccessMessage());
         return response.getSuccessMessage();
     }
 
@@ -73,6 +74,7 @@ public class accountGrpcClientImpl implements AccountClient {
                 .build();
         try {
             AccountProto.GetAccountResponse response = accountService.createNewAccount(request);
+            logger.info("new account have been saved: " + response.getAccount().getName());
             return mapToAccount(response);
         } catch (StatusRuntimeException e) {
             // Handle gRPC exception

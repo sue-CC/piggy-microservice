@@ -40,11 +40,10 @@ public class RecipientServiceImpl implements RecipientService {
     public Recipient save(String accountName, Recipient recipient) {
 
         recipient.setAccountName(accountName);
-//        recipient.getScheduledNotifications().values().forEach(scheduledNotification -> {});
 
         repository.save(recipient);
 
-        log.info("recipient {} settings has been updated", recipient);
+        log.info("recipient {} settings has been updated", recipient.getAccountName());
 
         return recipient;
     }

@@ -7,6 +7,8 @@ import com.piggy.microservice.auth.grpc.UserServiceGrpc;
 import com.piggy.microservice.auth.repository.UserRepository;
 import com.piggy.microservice.auth.service.UserService;
 import io.grpc.stub.StreamObserver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 
@@ -19,7 +21,7 @@ import java.util.stream.StreamSupport;
 
 @Service
 public class UserGrpcServiceImpl extends UserServiceGrpc.UserServiceImplBase {
-
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private final UserRepository userRepository;
 
     public UserGrpcServiceImpl(UserRepository userRepository) {

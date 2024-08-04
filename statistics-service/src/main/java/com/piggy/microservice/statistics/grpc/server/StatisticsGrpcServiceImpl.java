@@ -6,8 +6,6 @@ import com.piggy.microservice.statistics.domain.Saving;
 import com.piggy.microservice.statistics.domain.TimePeriod;
 import com.piggy.microservice.statistics.domain.timeseries.DataPoint;
 import com.piggy.microservice.statistics.domain.Item;
-import com.piggy.microservice.statistics.domain.timeseries.ItemMetric;
-import com.piggy.microservice.statistics.domain.timeseries.StatisticMetric;
 import com.piggy.microservice.statistics.grpc.StatisticsProto;
 import com.piggy.microservice.statistics.grpc.StatisticsServiceGrpc;
 import com.piggy.microservice.statistics.service.StatisticsServiceImpl;
@@ -18,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service

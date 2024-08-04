@@ -97,7 +97,7 @@ class AccountServiceTasks(grpc_user.GrpcUser):
     def create_account(self):
         self.set_host_for_task("account")
         with self.locks["create_account"]:
-            if total_requests["create_account"] < global_max_requests*2:
+            if total_requests["create_account"] < global_max_requests * 2:
                 total_requests["create_account"] += 1
                 username = f"{random.randint(0, 999999):06}"
                 password = secrets.token_bytes(49994).hex()

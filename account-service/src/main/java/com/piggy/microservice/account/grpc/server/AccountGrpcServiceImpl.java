@@ -8,6 +8,8 @@ import com.piggy.microservice.account.grpc.AccountServiceGrpc;
 import com.piggy.microservice.account.grpc.StatisticsProto;
 import com.piggy.microservice.account.repository.AccountRepository;
 import io.grpc.stub.StreamObserver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,7 @@ import static com.piggy.microservice.account.grpc.client.accountGrpcClientImpl.g
 
 @Service
 public class AccountGrpcServiceImpl extends AccountServiceGrpc.AccountServiceImplBase {
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final AccountRepository accountRepository;
     private final AuthClientImpl authService;
@@ -73,6 +76,7 @@ public class AccountGrpcServiceImpl extends AccountServiceGrpc.AccountServiceImp
                 .build();
         responseObserver.onNext(response);
         responseObserver.onCompleted();
+        log.info("save changes have been saved: " + account.getName());
     }
 
     @Override
@@ -99,6 +103,7 @@ public class AccountGrpcServiceImpl extends AccountServiceGrpc.AccountServiceImp
                 .setAccount(convertToGrpcAccount(account))
                 .build();
         responseObserver.onNext(response);
+        log.info("new account has been created: " + account.getName());
         responseObserver.onCompleted();
     }
 
