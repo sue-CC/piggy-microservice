@@ -3,8 +3,6 @@ package com.piggy.microservice.notification.service;
 import com.piggy.microservice.notification.client.AccountServiceClient;
 import com.piggy.microservice.notification.domain.NotificationType;
 import com.piggy.microservice.notification.domain.Recipient;
-import org.apache.commons.io.TaggedIOException;
-import org.jetbrains.annotations.Async;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

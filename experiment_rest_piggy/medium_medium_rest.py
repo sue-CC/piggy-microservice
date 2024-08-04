@@ -105,11 +105,11 @@ class AccountServiceTasks(rest_user.RestUser):
     def update_account(self):
         if self._increment_request_count("update_account"):
             username = f"{random.randint(0, 999999):06}"
-            amount = secrets.token_bytes(119).hex()
+            title = secrets.token_bytes(359).hex()
             payload = {
-                "incomes": [{"title": "Salary111", "amount": amount, "currency": "EUR", "period": "MONTH"}],
-                "expenses": [{"title": "Rent22", "amount": amount, "currency": "EUR", "period": "MONTH"}],
-                "saving": {"amount": amount, "currency": "EUR", "interest": "2.5", "deposit": "true",
+                "incomes": [{"title": title, "amount": 166, "currency": "EUR", "period": "MONTH"}],
+                "expenses": [{"title": "Rent22", "amount": 4666, "currency": "EUR", "period": "MONTH"}],
+                "saving": {"amount": 1232, "currency": "EUR", "interest": "2.5", "deposit": "true",
                            "capitalization": "false"}
             }
             try:
@@ -128,14 +128,14 @@ class AccountServiceTasks(rest_user.RestUser):
 
     def update_statistics(self):
         if self._increment_request_count("update_statistics"):
-            amount = secrets.token_bytes(80).hex()
+            title = secrets.token_bytes(320).hex()
             payload = {
                 "incomes": [
-                    {"title": "Rent11", "amount": amount, "currency": "EUR", "period": "MONTH"},
-                    {"title": "Freelance1", "amount": amount, "currency": "EUR", "period": "MONTH"}
+                    {"title": title, "amount": 11, "currency": "EUR", "period": "MONTH"},
+                    {"title": "Freelance1", "amount": 2222, "currency": "EUR", "period": "MONTH"}
                 ],
-                "expenses": [{"title": "Rent22", "amount": amount, "currency": "EUR", "period": "MONTH"}],
-                "saving": {"amount": amount, "currency": "USD", "interest": "2.5", "deposit": "true",
+                "expenses": [{"title": "Rent22", "amount": 5555, "currency": "EUR", "period": "MONTH"}],
+                "saving": {"amount": 3333, "currency": "USD", "interest": "2.5", "deposit": "true",
                            "capitalization": "false"}
             }
             try:

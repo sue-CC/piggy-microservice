@@ -1,6 +1,5 @@
 package com.piggy.microservice.notification.domain;
 
-import org.hibernate.validator.constraints.Email;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -15,7 +14,6 @@ public class Recipient {
 	private String accountName;
 
 	@NotNull
-	@Email
 	private String email;
 
 	@Valid

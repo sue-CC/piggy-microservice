@@ -24,11 +24,6 @@ class RestInterceptor:
             if request_data:
                 request_size = len(request_data.encode('utf-8')) if isinstance(request_data, str) else len(str(request_data).encode('utf-8'))
 
-            # Include headers size in the request size
-            headers = kwargs.get("headers", {})
-            for header, value in headers.items():
-                request_size += len(header.encode('utf-8')) + len(value.encode('utf-8')) + 4  # 4 is for ': ' and '\r\n'
-
             response = method(url, **kwargs)
             response_length = len(response.content)
         except requests.RequestException as e:
@@ -41,7 +36,7 @@ class RestInterceptor:
             request_type="http",
             name=f"{method_name} {endpoint} {request_id}",
             response_time=response_time,
-            response_length=request_size,
+            response_length=response_length,
             context=None,
             exception=exception,
             # request_size=request_size
@@ -68,7 +63,7 @@ class RestUser(User):
         if not port:
             raise LocustError(f"No port specified for task {task_name} and no port provided.")
 
-        url = f"http://145.108.225.14:{port}{endpoint}"
+        url = f"http://0.0.0.0:{port}{endpoint}"
         response = None
         try:
             method_func = self._get_method_func(method)

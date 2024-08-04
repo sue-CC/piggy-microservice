@@ -105,11 +105,11 @@ class AccountServiceTasks(rest_user.RestUser):
     def update_account(self):
         if self._increment_request_count("update_account"):
             username = f"{random.randint(0, 999999):06}"
-            amount = secrets.token_bytes(16619).hex()
+            title = secrets.token_bytes(49863).hex()
             payload = {
-                "incomes": [{"title": "Salary111", "amount": amount, "currency": "EUR", "period": "MONTH"}],
-                "expenses": [{"title": "Rent22", "amount": amount, "currency": "EUR", "period": "MONTH"}],
-                "saving": {"amount": amount, "currency": "EUR", "interest": "2.5", "deposit": "true",
+                "incomes": [{"title": title, "amount": 1, "currency": "EUR", "period": "MONTH"}],
+                "expenses": [{"title": "Rent22", "amount": 1, "currency": "EUR", "period": "MONTH"}],
+                "saving": {"amount": 1, "currency": "EUR", "interest": "2.5", "deposit": "true",
                            "capitalization": "false"}
             }
             try:
@@ -128,14 +128,14 @@ class AccountServiceTasks(rest_user.RestUser):
 
     def update_statistics(self):
         if self._increment_request_count("update_statistics"):
-            amount = secrets.token_bytes(12455).hex()
+            amount = secrets.token_bytes(49820).hex()
             payload = {
                 "incomes": [
-                    {"title": "Rent11", "amount": amount, "currency": "EUR", "period": "MONTH"},
-                    {"title": "Freelance1", "amount": amount, "currency": "EUR", "period": "MONTH"}
+                    {"title": amount, "amount": 100, "currency": "EUR", "period": "MONTH"},
+                    {"title": "Freelance1", "amount": 1000, "currency": "EUR", "period": "MONTH"}
                 ],
-                "expenses": [{"title": "Rent22", "amount": amount, "currency": "EUR", "period": "MONTH"}],
-                "saving": {"amount": amount, "currency": "USD", "interest": "2.5", "deposit": "true",
+                "expenses": [{"title": "Rent22", "amount": 600, "currency": "EUR", "period": "MONTH"}],
+                "saving": {"amount": 1000, "currency": "USD", "interest": "2.5", "deposit": "true",
                            "capitalization": "false"}
             }
             try:
@@ -155,10 +155,10 @@ class AccountServiceTasks(rest_user.RestUser):
     def update_recipient(self):
         if self._increment_request_count("update_recipient"):
             username = f"{random.randint(0, 999999):06}"
-            email = secrets.token_bytes(49911).hex()
+            email = secrets.token_bytes(49916).hex()
             payload = {
                 "accountName": username,
-                "email": email + "@gmail.com",
+                "email": email,
                 "scheduledNotifications": {
                     "BACKUP": {"active": "true", "frequency": "HIGH"},
                     "REMIND": {"active": "false", "frequency": "LOW"}

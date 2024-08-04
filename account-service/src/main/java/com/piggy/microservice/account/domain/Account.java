@@ -24,7 +24,6 @@ public class Account {
     private List<Item> expenses;
 
     @Valid
-    @NotNull
     private Saving saving;
 
     @Length(min = 0, max = 20_000)

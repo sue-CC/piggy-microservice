@@ -66,37 +66,14 @@ public class StatisticsServiceImpl implements StatisticsService {
                 .map(this::createItemMetric)
                 .collect(Collectors.toSet());
 
-        Map<StatisticMetric, BigDecimal> statistics = createStatisticMetrics(incomes, expenses, account.getSaving());
-
         DataPoint dataPoint = new DataPoint();
         dataPoint.setId(pointId);
         dataPoint.setIncomes(incomes);
         dataPoint.setExpenses(expenses);
-        dataPoint.setStatistics(statistics);
-        dataPoint.setRates(exchangeRatesService.getCurrentRates());
 
         log.debug("new datapoint has been created: {}", pointId);
 
         return dataPointRepository.save(dataPoint);
-    }
-
-    private Map<StatisticMetric, BigDecimal> createStatisticMetrics(Set<ItemMetric> incomes, Set<ItemMetric> expenses, Saving saving) {
-
-        BigDecimal savingAmount = exchangeRatesService.convert(saving.getCurrency(), Currency.getBase(), saving.getAmount());
-
-        BigDecimal expensesAmount = expenses.stream()
-                .map(ItemMetric::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        BigDecimal incomesAmount = incomes.stream()
-                .map(ItemMetric::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        return ImmutableMap.of(
-                StatisticMetric.EXPENSES_AMOUNT, expensesAmount,
-                StatisticMetric.INCOMES_AMOUNT, incomesAmount,
-                StatisticMetric.SAVING_AMOUNT, savingAmount
-        );
     }
 
     /**

@@ -106,8 +106,12 @@ class AccountServiceTasks(rest_user.RestUser):
         if self._increment_request_count("update_account"):
             username = f"{random.randint(0, 999999):06}"
             payload = {
-                "incomes": ["123"], "expenses": [],
-                "saving": {}
+                "incomes": [
+                ],
+                "expenses": [
+                ],
+                "saving": {
+                }
             }
             try:
                 self.make_request(f"/accounts/{username}", method="PUT", payload=payload, task_name="account")
@@ -129,8 +133,12 @@ class AccountServiceTasks(rest_user.RestUser):
                 self.make_request(f"/statistics/{random.choice(self.created_usernames)}",
                                   method="PUT",
                                   payload={
-                                      "incomes": ["123"], "expenses": [],
-                                      "saving": {}
+                                          "incomes": [
+                                          ],
+                                          "expenses": [
+                                          ],
+                                          "saving": {
+                                                      }
                                   },
                                   task_name="statistics"
                                   )

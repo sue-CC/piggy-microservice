@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -41,12 +40,7 @@ public class RecipientServiceImpl implements RecipientService {
     public Recipient save(String accountName, Recipient recipient) {
 
         recipient.setAccountName(accountName);
-        recipient.getScheduledNotifications().values()
-                .forEach(settings -> {
-                    if (settings.getLastNotified() == null) {
-                        settings.setLastNotified(new Date());
-                    }
-                });
+//        recipient.getScheduledNotifications().values().forEach(scheduledNotification -> {});
 
         repository.save(recipient);
 
@@ -57,7 +51,7 @@ public class RecipientServiceImpl implements RecipientService {
 
     @Override
     public void markNotified(NotificationType type, Recipient recipient) {
-        recipient.getScheduledNotifications().get(type).setLastNotified(new Date());
+        recipient.getScheduledNotifications().get(type);
         repository.save(recipient);
     }
 }

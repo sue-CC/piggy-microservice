@@ -12,15 +12,12 @@ import java.util.List;
 public class Account {
 
 	@Valid
-	@NotNull
 	private List<Item> incomes;
 
 	@Valid
-	@NotNull
 	private List<Item> expenses;
 
 	@Valid
-	@NotNull
 	private Saving saving;
 
 	public List<Item> getIncomes() {
