@@ -86,20 +86,6 @@ public class StatisticsGrpcServiceImpl extends StatisticsServiceGrpc.StatisticsS
                         .build()
         ));
 
-        dataPoint.getStatistics().forEach((metric, value) -> grpcDataPoint.addStatistics(
-                StatisticsProto.StatisticEntry.newBuilder()
-                        .setMetric(StatisticsProto.StatisticMetric.valueOf(metric.name()))
-                        .setValue(value.toString())
-                        .build()
-        ));
-
-        dataPoint.getRates().forEach((currency, rate) -> grpcDataPoint.addRates(
-                StatisticsProto.CurrencyEntry.newBuilder()
-                        .setCurrency(StatisticsProto.Currency.valueOf(currency.name()))
-                        .setRate(rate.toString())
-                        .build()
-        ));
-
         return grpcDataPoint.build();
     }
 

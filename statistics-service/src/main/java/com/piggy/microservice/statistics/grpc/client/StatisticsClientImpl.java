@@ -141,24 +141,10 @@ public class StatisticsClientImpl implements StatisticsClient {
                 .map(protoItem -> new ItemMetric(protoItem.getTitle(), new BigDecimal(protoItem.getAmount())))
                 .collect(Collectors.toSet());
 
-        Map<StatisticMetric, BigDecimal> statistics = protoDataPoint.getStatisticsList().stream()
-                .collect(Collectors.toMap(
-                        protoEntry -> StatisticMetric.valueOf(protoEntry.getMetric().name()),
-                        protoEntry -> new BigDecimal(protoEntry.getValue())
-                ));
-
-        Map<Currency, BigDecimal> rates = protoDataPoint.getRatesList().stream()
-                .collect(Collectors.toMap(
-                        protoEntry -> Currency.valueOf(protoEntry.getCurrency().name()),
-                        protoEntry -> new BigDecimal(protoEntry.getRate())
-                ));
-
         DataPoint dataPoint = new DataPoint();
         dataPoint.setId(id);
         dataPoint.setIncomes(incomes);
         dataPoint.setExpenses(expenses);
-        dataPoint.setStatistics(statistics);
-        dataPoint.setRates(rates);
 
         return dataPoint;
     }
